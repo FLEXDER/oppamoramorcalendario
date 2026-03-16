@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moramor — Content Calendar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0D1B6B;--gold:#C8A24E;--bg:#06091F;--card:#0c1235;--card-h:#111a45;--txt:#E8E6E0;--txt2:#8E8C86;--wh:#FFF;--bdr:#111835}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Cormorant Garamond',Georgia,serif;min-height:100vh}
+.sans{font-family:'Outfit',sans-serif}
+.header{padding:20px 24px 14px;border-bottom:1px solid var(--bdr)}
+.header-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.brand{font-size:9px;font-weight:600;letter-spacing:3px;color:var(--gold)}
+h1{font-size:26px;font-weight:300;color:var(--wh);font-family:'Cormorant Garamond',serif}
+.subtitle{font-size:11px;color:var(--txt2);margin-top:2px}
+.phase-label{font-size:11px;color:var(--gold);font-weight:500}
+.month-display{font-size:20px;font-weight:300;color:var(--wh)}
+.months{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.mb{cursor:pointer;padding:8px 16px;border:1px solid var(--bdr);background:transparent;color:var(--txt2);border-radius:6px;font-family:'Outfit',sans-serif;font-size:12px;transition:all .3s}
+.mb:hover{border-color:var(--gold);color:var(--gold)}
+.mb.a{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:600}
+.filters{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.fl{font-size:9px;color:var(--txt2);margin-right:2px}
+.fb{cursor:pointer;padding:4px 10px;border:1px solid #1a2040;background:transparent;color:var(--txt2);border-radius:20px;font-family:'Outfit',sans-serif;font-size:11px;transition:all .2s}
+.fb:hover{border-color:rgba(200,162,78,.27)}
+.fb.a{background:rgba(200,162,78,.13);color:var(--gold);border-color:rgba(200,162,78,.27)}
+.main{display:flex;gap:0}
+.cal-wrap{flex:1;padding:12px 16px}
+.day-headers{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
+.dh{text-align:center;font-size:9px;font-weight:500;color:var(--txt2);padding:3px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cell{border:1px solid var(--bdr);border-radius:6px;min-height:80px;padding:5px;background:var(--card);transition:all .2s}
+.cell.empty{background:transparent;border:none;min-height:30px}
+.cell.hp{cursor:pointer}
+.cell.hp:hover{border-color:rgba(200,162,78,.33);background:var(--card-h);transform:translateY(-1px)}
+.cell-day{font-size:10px;color:rgba(142,140,134,.27)}
+.cell.hp .cell-day{color:var(--wh)}
+.pill{width:100%;padding:2px 5px;border-radius:3px;font-family:'Outfit',sans-serif;font-size:9px;font-weight:500;margin-top:2px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;transition:opacity .2s}
+.pill:hover{opacity:.8}
+.sidebar{width:210px;padding:12px 14px 12px 0;flex-shrink:0}
+.side-box{background:var(--card);border-radius:8px;padding:14px;border:1px solid var(--bdr)}
+.side-title{font-size:9px;font-weight:600;letter-spacing:2px;margin-bottom:10px}
+.stat-row{margin-bottom:8px}
+.stat-head{display:flex;justify-content:space-between;margin-bottom:2px}
+.stat-label{font-size:9px;color:var(--txt2)}
+.stat-val{font-size:9px}
+.bar{height:3px;border-radius:2px;background:var(--bdr);overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;transition:width .5s}
+.count{font-size:20px;font-weight:300;color:var(--wh);margin-top:14px;padding-top:10px;border-top:1px solid var(--bdr)}
+.count span{font-size:10px;color:var(--txt2);margin-left:3px}
+/* Modal */
+.overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.75);z-index:100;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.overlay.show{display:flex}
+.modal{background:#0a0f2e;border:1px solid rgba(200,162,78,.2);border-radius:12px;max-width:560px;width:92%;max-height:88vh;overflow-y:auto;position:relative}
+.modal::-webkit-scrollbar{width:4px}
+.modal::-webkit-scrollbar-thumb{background:rgba(200,162,78,.2);border-radius:4px}
+.modal-top{padding:24px 24px 0}
+.modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--txt2);cursor:pointer;font-size:20px;font-family:sans-serif}
+.modal-phase{font-size:9px;font-weight:600;letter-spacing:2px;color:var(--gold);margin-bottom:3px}
+.modal-date{font-size:12px;color:var(--txt2);margin-bottom:14px}
+.modal-title{font-size:20px;font-weight:400;color:var(--wh);margin-bottom:10px;line-height:1.3;font-family:'Cormorant Garamond',serif}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-family:'Outfit',sans-serif;font-size:10px;font-weight:500}
+.modal-body{padding:0 24px 20px}
+.caption-box{background:#06091F;border-radius:8px;padding:16px;border-left:3px solid var(--gold);margin-bottom:14px}
+.caption-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.caption-label{font-size:9px;font-weight:600;letter-spacing:2px;color:var(--gold)}
+.copy-btn{cursor:pointer;padding:8px 20px;border:1px solid var(--gold);background:transparent;color:var(--gold);border-radius:6px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;transition:all .2s;letter-spacing:1px}
+.copy-btn:hover{background:var(--gold);color:var(--bg)}
+.copy-btn.ok{background:#2D8B55;border-color:#2D8B55;color:#fff}
+.caption-text{font-size:12.5px;line-height:1.7;color:#d4d2cc;white-space:pre-wrap;word-break:break-word;font-family:'Outfit',sans-serif}
+.info-row{display:flex;gap:8px}
+.info-card{flex:1;background:#06091F;border-radius:6px;padding:10px}
+.info-label{font-size:9px;font-weight:600;letter-spacing:1px;color:var(--txt2);margin-bottom:3px}
+.info-val{font-size:11px;color:var(--wh)}
+.info-dist{font-size:10px;color:var(--txt2);line-height:1.5}
+@media(max-width:768px){.main{flex-direction:column}.sidebar{width:100%;padding:0 16px 16px}.side-box{display:flex;flex-wrap:wrap;gap:12px}.side-box>div{flex:1;min-width:120px}.cell{min-height:60px}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="sans brand">MORAMOR TEQUILA</div>
+      <h1>Content Calendar</h1>
+      <p class="sans subtitle" id="subtitleCount"></p>
+    </div>
+    <div style="text-align:right">
+      <div class="sans phase-label" id="phaseLabel"></div>
+      <div class="sans month-display" id="monthDisplay"></div>
+    </div>
+  </div>
+  <div class="months" id="monthBtns"></div>
+  <div class="filters sans" id="filterBtns"><span class="fl">FILTER:</span></div>
+</div>
+<div class="main">
+  <div class="cal-wrap">
+    <div class="day-headers sans" id="dayHeaders"></div>
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
+  <div class="sidebar">
+    <div class="side-box sans" id="sideStats"></div>
+  </div>
+</div>
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+const HT="\n\n.\n.\n.\n#Moramor #TequilaPremium #Tequila100Agave #TequilaMexicano #Talavera #LuxurySpirits #MexicanLuxury #HechoEnMexico #TequilaLovers #Agave #CeramicBottle #PremiumTequila #Jalisco #MoramorTequila";
+const PC={"Producto Hero":{bg:"#1a1440",tx:"#9B8AFF",bd:"#3d2e80"},"Detalles & Craft":{bg:"#1a2d18",tx:"#7ADB6B",bd:"#2e6028"},"Lifestyle Premium":{bg:"#2d1a28",tx:"#DB6BAA",bd:"#6a2e55"},"Cultura & Origen":{bg:"#2d2218",tx:"#DBA66B",bd:"#6a5028"},"Branding & Diseño":{bg:"#18222d",tx:"#6BA6DB",bd:"#28506a"},"Producto Cinemático":{bg:"#2d1828",tx:"#FF6BAA",bd:"#801050"},"Craft & Detalle Video":{bg:"#182d1a",tx:"#6BDB7A",bd:"#286030"},"Lifestyle Mood Video":{bg:"#2d1a1a",tx:"#DB8A6B",bd:"#6a3828"},"Branding Animado":{bg:"#1a1a2d",tx:"#8A8AFF",bd:"#3838a0"}};
+const FT={"Photo Post":{c:"#C8A24E",i:"📷"},"Reel":{c:"#FF6BAA",i:"🎬"},"Carousel":{c:"#6BA6DB",i:"🖼"},"Threads":{c:"#9B8AFF",i:"🧵"}};
+const AN={hero:"📷 Producto Hero",craft:"📷 Detalles & Craft",lifestyle:"📷 Lifestyle Premium",cultura:"📷 Cultura & Origen",branding:"📷 Branding & Diseño",cinematico:"🎬 Cinemático (10-15s)",craftVideo:"🎬 Craft Video (10-15s)",lifestyleVideo:"🎬 Lifestyle Mood (10-15s)",brandingAnim:"🎬 Branding Anim. (10-15s)"};
+const DIST={"Reel":"IG Reels → TikTok → YT Shorts. Story teaser. Threads +24h.","Photo Post":"IG Feed. Stories con animación. Threads adaptación +24h.","Carousel":"IG carousel. Cada slide = Story. Threads como lista.","Threads":"Threads texto puro. Adaptar a IG caption con foto después."};
+const MS=[{k:"2026-04",l:"Abril",p:"Foundation + Launch"},{k:"2026-05",l:"Mayo",p:"Optimization"},{k:"2026-06",l:"Junio",p:"Acceleration"},{k:"2026-07",l:"Julio",p:"Scale & Refine"}];
+
+const P=[
+// ═══ APRIL ═══
+{d:"2026-04-01",pl:"Producto Hero",f:"Photo Post",a:0,as:"hero",ph:"Foundation Grid",tp:"Blanco — Hero on navy",ig:"Blanco.\n\nPuro, sin añejar. El agave en su expresión más honesta.\n\nAromas de agave cocido, hierbas frescas, cítricos y fruta. Un sabor limpio que no necesita esconderse detrás de nada.\n\nBrillante. Cristalino. Directo.\n\n750 ml · 40% Alc. Vol. · 100% Agave · Cerámica talavera artesanal."+HT},
+{d:"2026-04-02",pl:"Producto Hero",f:"Photo Post",a:0,as:"hero",ph:"Foundation Grid",tp:"Reposado — Hero on navy",ig:"Reposado.\n\nDescansado en barrica de roble americano. El tiempo le dio lo que el agave no podía hacer solo.\n\nAromas de caramelo especiado, frutas tropicales y vainilla. Sabor suave, ligeramente dulce, frutal. Dorado pálido con destellos brillantes.\n\nLa paciencia tiene un sabor. Este es.\n\n750 ml · 40% Alc. Vol. · 100% Agave · Cerámica talavera artesanal."+HT},
+{d:"2026-04-03",pl:"Producto Hero",f:"Photo Post",a:0,as:"hero",ph:"Foundation Grid",tp:"Añejo — Hero on navy",ig:"Añejo.\n\nDe 1 a 3 años en barrica de roble. Lo que entra joven sale con carácter.\n\nAroma de madera con un toque de frescura herbal. En boca: suave, con notas de agave cocido, almendras tostadas, clavo y vainilla.\n\nÁmbar con matices cobrizos. Cuerpo robusto.\n\nHay cosas que solo el tiempo puede crear.\n\n750 ml · 40% Alc. Vol. · 100% Agave · Cerámica talavera artesanal."+HT},
+{d:"2026-04-04",pl:"Detalles & Craft",f:"Photo Post",a:0,as:"craft",ph:"Foundation Grid",tp:"Close-up talavera detail",ig:"El detalle no es decoración. Es declaración.\n\nCada botella de Moramor es cerámica talavera artesanal — una tradición mexicana que lleva siglos perfeccionándose.\n\nNo elegimos cerámica por capricho. La elegimos porque el vidrio no puede contener lo que significa esta marca.\n\nCada relieve, cada trazo, cada imperfección calculada es parte de la historia.\n\nCuando la sostienes, lo sientes."+HT},
+{d:"2026-04-05",pl:"Detalles & Craft",f:"Photo Post",a:0,as:"craft",ph:"Foundation Grid",tp:"Macro ceramic texture + gold",ig:"Cerámica. No vidrio.\n\nHay una razón por la que elegimos el camino más difícil.\n\nEl vidrio es práctico. La cerámica es intencional. Cada botella pesa más, cuesta más, tarda más en producirse.\n\nPero cuando llega a la mesa, nadie pregunta \"¿de qué marca es?\"\n\nTodos preguntan \"¿qué es eso?\"\n\nEsa pregunta vale más que cualquier campaña publicitaria."+HT},
+{d:"2026-04-06",pl:"Detalles & Craft",f:"Photo Post",a:0,as:"craft",ph:"Foundation Grid",tp:"Gold accent, dramatic light",ig:"Los detalles hablan más fuerte que las etiquetas.\n\nEl dorado en Moramor no es un adorno. Es una firma.\n\nEn un mercado donde todo se ve igual, lo que se siente diferente gana. Y esto se siente diferente desde el primer contacto.\n\nPorque el lujo de verdad no necesita explicarse. Se nota."+HT},
+{d:"2026-04-07",pl:"Lifestyle Premium",f:"Photo Post",a:0,as:"lifestyle",ph:"Foundation Grid",tp:"Bottle on elegant table, warm light",ig:"Hay noches que piden algo diferente.\n\nNo más fuerte. No más caro. Diferente.\n\nUna mesa bien puesta. Una conversación que fluye. Una botella que no necesita presentación porque su presencia es suficiente.\n\nMoramor no es para todas las noches.\nEs para las que importan."+HT},
+{d:"2026-04-08",pl:"Lifestyle Premium",f:"Photo Post",a:0,as:"lifestyle",ph:"Foundation Grid",tp:"Pour moment, warm ambient",ig:"El ritual del servicio.\n\nCuando la cerámica toca la mesa, algo cambia. La conversación se pausa un segundo. Las miradas se dirigen al centro.\n\nNo es el tequila. Es el momento que el tequila representa.\n\n750 ml de lo que el agave puede llegar a ser.\n\nCuatro expresiones. Un solo estándar."+HT},
+{d:"2026-04-09",pl:"Cultura & Origen",f:"Photo Post",a:0,as:"cultura",ph:"Foundation Grid",tp:"Bottle with artisanal stone texture",ig:"Jalisco, México.\n\nDonde el agave azul crece bajo el mismo sol que ha dado forma a generaciones de maestros tequileros.\n\nMoramor nació de un instante de amor que cambió todo. En una noche ordinaria, en un pequeño bar de tequila, nació la idea de una marca que capturara lo que ninguna otra podía: la elegancia del romance, la intimidad de los momentos compartidos.\n\nRaíz mexicana auténtica. Lenguaje contemporáneo.\n\nSin folclor literal. Sin pedir permiso."+HT},
+// Week 2
+{d:"2026-04-10",pl:"Producto Cinemático",f:"Reel",a:4,as:"cinematico",ph:"Content Push",tp:"4A — Bottle as Billboard (360° reveal)",ig:"Tu botella más vendida es la más fotografiada.\n\nCada vez que un comensal fotografía una botella de Moramor y la sube a sus redes, tu bar aparece en su feed. Gratis.\n\nUna publicación orgánica que alcanza 500 personas costaría entre $50 y $100 MXN en pauta pagada. Multiplica eso por 20-30 fotos al mes.\n\nLa botella genérica se bebe y se olvida.\nLa pieza de diseño se comparte.\n\n¿Cuántas fotos de tus botellas actuales subieron tus clientes este mes?\n\nGuarda este post si administras un bar o restaurante. 📌"+HT},
+{d:"2026-04-11",pl:"Branding & Diseño",f:"Threads",a:7,as:null,ph:"Content Push",tp:"7C — The Price Apology",ig:"Las marcas mexicanas de tequila premium tienen un patrón: se disculpan por su precio.\n\nDescuentan para cerrar. Lideran con \"valor\" en vez de valor. Mientras tanto, las multinacionales ponen precios agresivamente altos y construyen la marca para justificarlo.\n\nResultado: marcas independientes mexicanas con mejor líquido venden 30-50% más barato que las de conglomerado y aún así les dicen \"está caro.\"\n\nEl precio no es un número. Es una declaración.\n\n¿O no?"},
+{d:"2026-04-12",pl:"Lifestyle Premium",f:"Photo Post",a:2,as:"lifestyle",ph:"Content Push",tp:"2A — IG Is Their Menu",ig:"Tu comensal ya eligió qué va a pedir antes de sentarse en tu mesa.\n\nEl 67% de los consumidores de spirits premium en Latinoamérica descubren marcas nuevas en redes sociales antes de comprarlas en punto de venta.\n\nEso significa que tu carta física es el segundo punto de contacto. Instagram es el primero.\n\nSi tu selección de tequila no aparece cuando alguien busca tu restaurante en redes, para el comensal premium simplemente no existe.\n\nLa pregunta no es \"¿qué tequilas tienes?\"\nLa pregunta es \"¿qué tequilas se ven?\"\n\nFuente: IWSR Drinks Market Analysis, 2024."+HT},
+// Week 3
+{d:"2026-04-15",pl:"Craft & Detalle Video",f:"Reel",a:5,as:"craftVideo",ph:"Content Push",tp:"5C — Story Behind the Bottle (macro + rack focus)",ig:"Nadie paga $2,000 por líquido.\n\nPagan por significado. Por la historia que van a contar cuando alguien pregunte \"¿y esa botella?\"\n\nA $120+ USD por botella, el tequila premium no compite con otros tequilas. Compite con experiencias de lujo.\n\nMoramor nació de una historia de amor. Se fabrica en cerámica talavera artesanal. Se llama \"más amor\" — literalmente.\n\n¿Tu marca tiene una historia que un mesero pueda contar en 15 segundos?\n\nSi no, tienes un producto caro. No uno premium.\n\nGuarda esto. 📌"+HT},
+{d:"2026-04-17",pl:"Producto Hero",f:"Photo Post",a:1,as:"hero",ph:"Content Push",tp:"1A — Invisible Labor Cost (dark mode hero)",ig:"El tequila \"barato\" te sale caro.\n\nUn bar que vende tequila de $80 la copa necesita mover 15 copas para igualar el margen de 4 copas de un tequila premium a $350.\n\nMás rotación. Más merma. Más desgaste operativo. Más inventario.\n\nEl tequila \"caro\" no es caro para el negocio.\nEs el que menos trabajo te da para ganar más.\n\nEl segmento ultra-premium creció 23% en México durante 2024. El estándar creció solo 3%.\n\nEl mercado ya decidió hacia dónde va.\n¿Y tu carta?\n\nFuente: CRT, 2024."+HT},
+{d:"2026-04-19",pl:"Lifestyle Premium",f:"Threads",a:6,as:null,ph:"Content Push",tp:"6B — Sell the Night",ig:"A nadie le importan tus \"notas de agave cocido con toques herbáceos.\"\n\nSolo el 12% de los consumidores de spirits premium identifican correctamente perfiles de sabor en catas a ciegas.\n\nPero el 78% dice que \"la ocasión y el ambiente\" son el factor #1 para elegir marca.\n\nEl consumidor premium no compra especificaciones. Compra la noche que quiere tener.\n\nSi tu estrategia de contenido es publicar fichas de cata con fondo bonito, estás hablando solo.\n\n¿Acuerdo o desacuerdo?"},
+// Week 4
+{d:"2026-04-22",pl:"Lifestyle Mood Video",f:"Reel",a:3,as:"lifestyleVideo",ph:"Content Push",tp:"3B — Scarcity Sells (dinner + bottle reveal)",ig:"El tequila que tu cliente puede comprar en cualquier tienda es el que menos valora.\n\nLa escasez es el driver más poderoso de percepción de valor en lujo.\n\nCuando un producto está en todos lados, se vuelve mueble. Cuando solo está en tu bar, se vuelve un evento.\n\n\"Somos de los pocos lugares que lo tienen\" vale más que cualquier descuento.\n\nProductos percibidos como escasos son valuados 34% más alto, incluso cuando catas a ciegas no muestran diferencia.\n\nFuente: Journal of Consumer Research, 2022.\n\n¿Estás vendiendo algo especial o solo eres otro anaquel?"+HT},
+{d:"2026-04-24",pl:"Branding & Diseño",f:"Threads",a:7,as:null,ph:"Content Push",tp:"7A — The Folklore Trap",ig:"Envolver tu botella en una bandera no la hace premium. La hace souvenir.\n\nMuchas marcas mexicanas de tequila confunden autenticidad cultural con estética folklórica.\n\nEso atrapa a la marca en la categoría de souvenir.\n\nLas marcas que crecen 3x más rápido en premium combinan herencia cultural con diseño contemporáneo minimal.\n\nFuente: McKinsey Luxury Report, LatAm 2023.\n\n¿Tu marca se ve como lujo o como tienda de aeropuerto?"},
+{d:"2026-04-26",pl:"Detalles & Craft",f:"Carousel",a:4,as:"craft",ph:"Content Push",tp:"4B — Ceramic > Glass (5-slide carousel)",ig:"Cerámica > Vidrio.\n\n5 razones por las que el material es una estrategia de distribución:\n\n📌 Slide 1: En un feed, todas las botellas de vidrio se ven igual a tamaño miniatura.\n\n📌 Slide 2: La cerámica se registra como \"objeto de arte\" antes que \"tequila\" — y eso para el scroll.\n\n📌 Slide 3: Packaging \"Instagrameable\" genera hasta 40% más contenido orgánico.\n\n📌 Slide 4: La cerámica talavera de Moramor no tiene competidor directo en el tier ultra-premium.\n\n📌 Slide 5: Cerámica artesanal comanda 25-45% de premium sobre vidrio comparable.\n\nFuentes: Stackla/Nosto 2024, Mintel 2024.\n\nGuarda este carrusel. 📌"+HT},
+
+// ═══ MAY ═══
+{d:"2026-05-01",pl:"Producto Cinemático",f:"Reel",a:6,as:"cinematico",ph:"Optimization",tp:"6C — The Ritual > The Recipe (slow pour)",ig:"Un cocktail recipe es contenido.\nUn ritual es cultura.\n\nTodas las marcas publican recetas. Son útiles, olvidables e intercambiables.\n\nUn ritual — cómo abres la botella, cómo sirves, cómo presentas — es tuyo. Es memorable.\n\nLa cerámica de Moramor pesa 40% más que una botella estándar. Eso crea un servicio más lento, más deliberado, más ceremonial.\n\nReels de rituales: 4.7% tasa de guardado.\nReels de recetas: 1.2%.\n\nCualquiera copia tu receta.\n¿Quién copia tu ceremonia?\n\nFuente: Sprout Social, 2024."+HT},
+{d:"2026-05-03",pl:"Cultura & Origen",f:"Photo Post",a:7,as:"cultura",ph:"Optimization",tp:"7A — Heritage Without Cliché",ig:"Herencia sin cliché.\nOrigen sin disculpa.\n\nLa talavera no es un adorno en Moramor. Es un lenguaje de diseño.\n\nRefinado, minimal, contemporáneo. Sin sombreros, sin cactus, sin papel picado literal.\n\nPorque el lujo mexicano de verdad no se parece a lo que la mayoría imagina.\n\nLas marcas que combinan herencia con diseño minimalista crecen 3x más rápido en premium.\n\nFuente: McKinsey Luxury Report, LatAm 2023."+HT},
+{d:"2026-05-06",pl:"Producto Hero",f:"Photo Post",a:3,as:"hero",ph:"Optimization",tp:"3A — First Mover (Extra Añejo hero)",ig:"Nadie recuerda quién fue el bar #50 en tener Clase Azul.\n\nPero todos recuerdan quién lo tuvo primero.\n\nEn un mercado donde 80% de los bares premium ofrecen las mismas 5 marcas, la diferenciación está en la curación.\n\nSer early adopter de una marca premium no es un riesgo. Es una estrategia de posicionamiento.\n\nEstablecimientos con marcas exclusivas reportan +18% en ticket por mesa.\n\nFuente: Nielsen CGA, México 2023.\n\n¿Tu carta la podría armar cualquier distribuidor con una llamada?"+HT},
+{d:"2026-05-08",pl:"Lifestyle Mood Video",f:"Reel",a:2,as:"lifestyleVideo",ph:"Optimization",tp:"2C — Menu vs 10K Posts (slow camera)",ig:"Tu menú de piel está perdiendo contra un Reel de 6 segundos.\n\nUn menú impreso es estático y local. Un Reel alcanza miles en tu mismo demográfico.\n\nCada marca premium que invierte en contenido está haciendo marketing a tus futuros clientes ahora mismo.\n\nMarcas con contenido editorial generan 7x más descubrimiento para las cuentas que las tienen.\n\nFuente: IWSR Digital Engagement, 2024.\n\nTu menú necesita marcas que se mercadeen solas."+HT},
+{d:"2026-05-10",pl:"Detalles & Craft",f:"Photo Post",a:4,as:"craft",ph:"Optimization",tp:"4A — Billboard (macro symbol)",ig:"40% más contenido orgánico.\nCero pesos en pauta.\nUna botella de cerámica.\n\nEl cálculo real no es \"cuánto cuesta la botella\" sino \"cuántas impresiones orgánicas genera en tu mesa.\"\n\nEl contenido ganado genera 92% más confianza que la publicidad pagada entre consumidores premium.\n\n¿Cuánto costaría en pauta lo que esta botella genera gratis?\n\nFuentes: Stackla/Nosto 2024, Nielsen Trust in Advertising 2024."+HT},
+{d:"2026-05-13",pl:"Lifestyle Premium",f:"Carousel",a:1,as:"lifestyle",ph:"Optimization",tp:"1C — Opportunity Merma (data carousel)",ig:"La merma más grande de tu bar no aparece en ningún reporte.\n\n📌 Slide 1: Merma tradicional = derrame y quiebra. 0.5-1% de inventario.\n\n📌 Slide 2: Merma de oportunidad = cada copa barata cuando el cliente hubiera pagado premium.\n\n📌 Slide 3: El bar promedio sirve 40-60% de su tequila como \"default\" — el cliente no especificó marca.\n\n📌 Slide 4: Brecha de $13 USD × 150 copas default/semana = ~$100,000 MXN mensuales en ingreso no realizado.\n\n📌 Slide 5: Solución: protocolo \"premium primero.\" Conversión promedio: 25-30%.\n\nMides cada botella rota al centavo.\n¿Cuándo mediste lo que dejaste en la mesa?\n\nGuarda esto. 📌"+HT},
+{d:"2026-05-15",pl:"Branding Animado",f:"Reel",a:0,as:"brandingAnim",ph:"Optimization",tp:"Brand symbol animation + fade to bottle",ig:"Cuatro expresiones.\nUn solo estándar.\n\nBlanco — Puro, cristalino, herbáceo.\nReposado — Suave, frutal, dorado.\nAñejo — Profundo, especiado, ámbar.\nExtra Añejo — Intenso, chocolate, fruta seca.\n\n100% Agave. Cerámica talavera artesanal. Hecho en Jalisco.\n\nEn Moramor no solo hacemos tequila.\nEmbotellamos amor."+HT},
+{d:"2026-05-17",pl:"Cultura & Origen",f:"Photo Post",a:5,as:"cultura",ph:"Optimization",tp:"5C — Story Sells First Pour",ig:"La historia vende la primera copa.\nEl líquido vende todas las demás.\n\nCuando un mesero cuenta la historia en menos de 20 segundos, las recomendaciones aumentan 45%.\n\nMoramor en 15 segundos:\n\n\"Nació de una historia de amor en un bar de tequila. Cerámica talavera artesanal. Se llama Moramor — más amor. Somos de los pocos que lo tienen.\"\n\nEso es lo que convierte. No las notas de cata.\n\nFuente: Diageo Bar Academy, 2023."+HT},
+{d:"2026-05-20",pl:"Craft & Detalle Video",f:"Reel",a:4,as:"craftVideo",ph:"Optimization",tp:"4C — UGC = Distribution",ig:"Cada foto de un cliente es una llamada de ventas que no tuviste que hacer.\n\nCuando un bar manager en Monterrey ve Moramor en la story de un cliente desde GDL, eso es un lead más caliente que cualquier correo frío.\n\nEl 53% de compradores on-premise dicen que ver un producto en redes de clientes influenció su decisión de stockearlo.\n\nFuente: Nielsen CGA, 2023.\n\nNo vendas más fuerte. Haz que te fotografíen más.\nLa distribución sigue al deseo."+HT},
+{d:"2026-05-22",pl:"Producto Hero",f:"Photo Post",a:5,as:"hero",ph:"Optimization",tp:"5A — Fatal Metric (pedestal, minimal)",ig:"Si mides tequila premium por cajas movidas, ya perdiste.\n\nMargen bruto ultra-premium: 35-42%.\nMargen estándar: 15-20%.\n\n10 cajas premium = 25-30 cajas estándar en utilidad.\nMenos volumen. Menos logística. Más utilidad neta.\n\nLa rotación es para refrescos.\nEl prestigio es para destilados.\n\nFuente: Euromonitor, Spirits in Mexico, 2024."+HT},
+{d:"2026-05-24",pl:"Lifestyle Premium",f:"Threads",a:6,as:null,ph:"Optimization",tp:"6A — Tasting Notes Monologue",ig:"Tu feed de tequila parece reporte de laboratorio. Tu cliente quiere una carta de amor.\n\nLa industria sigue comunicando como si el consumidor fuera sommelier: perfiles organolépticos, fichas técnicas.\n\nPero el consumidor premium compra experiencias, no especificaciones.\n\nEl contenido que convierte habla de momentos, no de moléculas.\n\n¿Tu contenido describe el producto o invita al momento?"},
+{d:"2026-05-27",pl:"Producto Hero",f:"Photo Post",a:2,as:"hero",ph:"Optimization",tp:"2B — Sommelier Recommendation",ig:"Un sommelier que solo recomienda lo que ya conoce no está curando. Está repitiendo.\n\nHoy el consumidor premium llega con opiniones formadas por contenido online.\n\nSi el cliente ya vio Moramor en un contexto editorial, el sommelier confirmándolo cierra la venta.\n\nConversión cuando el cliente reconoce la marca de redes: 4x más alta.\n\nFuente: Diageo Bar Academy, 2023."+HT},
+{d:"2026-05-29",pl:"Lifestyle Mood Video",f:"Reel",a:1,as:"lifestyleVideo",ph:"Optimization",tp:"1B — Good Deal Trap (hand serving)",ig:"Cada copa de tequila barato que sirves es una lección.\n\nLe estás enseñando a tu cliente que $80 es lo que cuesta el tequila aquí.\n\nLos bares que lideran con opciones premium no solo venden copas más caras — resetean la expectativa del cliente.\n\nRestaurantes que eliminaron su opción más barata de vino: +14% en gasto promedio. Sin una queja.\n\nFuente: Cornell Hotel Quarterly, 2022.\n\n¿Cuál es la primera opción que ve tu cliente? Esa es tu ancla."+HT},
+{d:"2026-05-31",pl:"Detalles & Craft",f:"Photo Post",a:3,as:"craft",ph:"Optimization",tp:"3B — Scarcity (abstract product)",ig:"Lo que está en todos lados se vuelve invisible.\n\nMarcas con menos de 200 puntos de venta comandan 40-60% más precio por copa que distribución masiva.\n\nY generan 2.1x más menciones en redes por copa servida.\n\n\"Somos de los pocos que lo tienen\" no es disclaimer. Es tu mejor argumento de venta.\n\nFuentes: Euromonitor 2024, IWSR 2024."+HT},
+
+// ═══ JUNE ═══
+{d:"2026-06-03",pl:"Producto Cinemático",f:"Reel",a:5,as:"cinematico",ph:"Acceleration",tp:"5B — Halo Effect (slow motion pour)",ig:"No estás agregando una botella premium.\nEstás agregando un ancla de precio.\n\nCuando un cliente ve $3,500 MXN en tu carta, cada botella de $800 se siente \"razonable.\"\n\nProductos junto a opción de precio más alto: percibidos con 20-30% mejor valor.\n\nBarras con opción de $300+ por copa: +11% en precio promedio en toda la sección.\n\nFuentes: Journal of Marketing Research 2021, Diageo 2023."+HT},
+{d:"2026-06-05",pl:"Cultura & Origen",f:"Photo Post",a:7,as:"cultura",ph:"Acceleration",tp:"7B — Multinational Playbook",ig:"México produce el mejor tequila del mundo.\nY deja que otros lo vendan.\n\n6 de las 10 marcas ultra-premium más vendidas en México pertenecen a conglomerados multinacionales.\n\nNo hicieron mejor tequila. Hicieron mejores marcas.\n\nPero las independientes mexicanas que igualan la calidad de contenido crecen al 2x de velocidad.\n\nAutenticidad + calidad visual = combinación que los conglomerados no pueden replicar.\n\nFuente: IWSR 2024, Euromonitor 2024."+HT},
+{d:"2026-06-07",pl:"Lifestyle Premium",f:"Photo Post",a:6,as:"lifestyle",ph:"Acceleration",tp:"6B — Sell the Night (nocturnal)",ig:"La gente no compra tequila.\nCompra el tipo de noche que quiere tener.\n\nA $2,000+ MXN, Moramor compite con experiencias de lujo, no con otros tequilas.\n\nConsumidores que asocian marca con ocasión: 5.2x más propensos a recomprar.\n\nContenido con #DateNight genera 4x más alcance que #TequilaAñejo.\n\nFuentes: Kantar 2024, Later Social 2024.\n\n¿Tu IG hace que alguien quiera comprar una botella o vivir la noche que representa?"+HT},
+{d:"2026-06-10",pl:"Craft & Detalle Video",f:"Reel",a:3,as:"craftVideo",ph:"Acceleration",tp:"3C — Competitor Comfort Zone",ig:"Tu competidor reordena en automático. Esa es tu apertura.\n\nEl segmento \"explorador\" = 15-20% de clientes pero 35-40% de ingresos premium.\n\n3x más engagement en redes. Desproporcionadamente valiosos para alcance orgánico.\n\nBarras que rotan una opción premium por trimestre: +18% visitas de retorno del segmento de mayor gasto.\n\nFuentes: Diageo Bar Academy 2023, Nielsen CGA 2023.\n\n¿Les das algo nuevo o el mismo menú desde 2023?"+HT},
+{d:"2026-06-12",pl:"Producto Hero",f:"Photo Post",a:1,as:"hero",ph:"Acceleration",tp:"1A — 15 vs 4 pours",ig:"La matemática que nadie hace:\n\n15 copas estándar a $80 = $1,200.\n4 copas premium a $350 = $1,400.\n\nMismo turno. Un cuarto de las transacciones. Menos inventario. Más margen neto.\n\nEl segmento ultra-premium creció 23% en 2024. El estándar: 3%.\n\nFuente: CRT, 2024.\n\nLa pregunta no es \"¿cuánto cuesta la botella?\"\nEs \"¿cuánto cuesta cada peso que gano?\""+HT},
+{d:"2026-06-14",pl:"Branding & Diseño",f:"Carousel",a:0,as:"branding",ph:"Acceleration",tp:"Full lineup: Blanco → Extra Añejo",ig:"Cuatro expresiones. Un solo estándar.\n\n📌 Slide 1: BLANCO — Puro, sin añejar. Agave cocido, hierbas, cítricos. Cristalino.\n\n📌 Slide 2: REPOSADO — Roble americano. Caramelo, frutas tropicales, vainilla. Dorado pálido.\n\n📌 Slide 3: AÑEJO — 1-3 años. Madera, almendras tostadas, clavo, vainilla. Ámbar cobrizo.\n\n📌 Slide 4: EXTRA AÑEJO — 3+ años. Chocolate, camote asado, vainilla. Ámbar oscuro.\n\n📌 Slide 5: 100% Agave · Cerámica talavera · Jalisco · 750 ml · 40% Alc. Vol.\n\n\"En Moramor no solo hacemos tequila. Embotellamos amor.\"\n\nGuarda para tu próxima noche especial. 📌"+HT},
+{d:"2026-06-17",pl:"Lifestyle Premium",f:"Photo Post",a:2,as:"lifestyle",ph:"Acceleration",tp:"2A — The 67% Stat",ig:"67%.\n\nEse es el porcentaje de consumidores premium en LatAm que descubren marcas en redes antes de comprar en punto de venta.\n\nNo en el anaquel. No por el mesero. En Instagram.\n\nSi tu marca no existe en digital, no existe en la mente del consumidor que paga tu ticket más alto.\n\nFuente: IWSR Drinks Market Analysis, LatAm 2024."+HT},
+{d:"2026-06-19",pl:"Branding Animado",f:"Reel",a:0,as:"brandingAnim",ph:"Acceleration",tp:"Talavera pattern → fade to bottle",ig:"Donde la tradición encuentra su forma más elegante.\n\nTalavera → Moramor.\n\nSiglos de artesanía mexicana condensados en una botella que no necesita explicación.\n\nLa cerámica no es un capricho. Es una declaración de lo que México puede ser cuando deja de pedir permiso.\n\n100% Agave. Cerámica talavera artesanal. Jalisco, México."+HT},
+{d:"2026-06-21",pl:"Detalles & Craft",f:"Photo Post",a:4,as:"craft",ph:"Acceleration",tp:"4C — Bottle Sells Itself",ig:"7 botellas de vidrio eran invisibles en un resort de Los Cabos. El bar invertía $18,000/mes en ads.\n\nAgregaron una botella de cerámica a un display iluminado.\n\n30 días después: 38 publicaciones orgánicas etiquetadas. 11,400 impresiones/mes. Redujeron pauta $8,000/mes manteniendo reservaciones.\n\nSiete de vidrio eran invisibles.\nUna de cerámica se volvió la estrella.\n\nEl material es el mensaje."+HT},
+{d:"2026-06-24",pl:"Producto Hero",f:"Photo Post",a:6,as:"hero",ph:"Acceleration",tp:"6C — Ritual = Culture",ig:"Moramor no se sirve como cualquier botella. La cerámica exige un servicio diferente — más lento, más presente.\n\nEstablecimientos que adoptaron un ritual de servicio: +52% en reórdenes vs los que no.\n\nVideos del ritual: 3x más engagement que fotos estáticas.\n\nEl ritual convirtió un servicio en performance.\nLa performance convirtió clientes en creadores de contenido."+HT},
+{d:"2026-06-26",pl:"Lifestyle Premium",f:"Threads",a:7,as:null,ph:"Acceleration",tp:"7C — Price Confidence",ig:"Si tú no crees que tu tequila vale lo que cuesta, ¿por qué alguien más lo haría?\n\nIndependientes mexicanas: -28% vs multinacionales con calidad comparable.\nLas que bajan precio: +15% volumen inicial, -23% calidad percibida a 6 meses.\nLas que mantienen precio: adopción 18% más lenta, pero 2.3x mejor retención.\n\nLos descuentos compran transacciones.\nLa confianza compra relaciones.\n\nFuentes: Euromonitor 2024, IWSR 2024."},
+{d:"2026-06-28",pl:"Cultura & Origen",f:"Photo Post",a:5,as:"cultura",ph:"Acceleration",tp:"5C — Love Story > Distillery Tour",ig:"Tu tour de destilería es interesante.\nTu historia de amor es inolvidable.\n\nMarcas con narrativa de fundador emocional convierten 3.2x mejor en precio premium.\n\nMoramor nació de un instante de amor. Una noche ordinaria. Un pequeño bar de tequila.\n\nLa historia que un mesero cuenta en 15 segundos es más poderosa que cualquier ficha técnica.\n\nFuente: HBR, Luxury Brand Storytelling, 2023."+HT},
+
+// ═══ JULY ═══
+{d:"2026-07-01",pl:"Producto Cinemático",f:"Reel",a:4,as:"cinematico",ph:"Scale",tp:"4B — Ceramic > Glass (360° blue)",ig:"El vidrio es invisible.\nLa cerámica para el scroll.\n\nEn un feed, todas las botellas de vidrio se ven igual a tamaño miniatura.\n\nLa cerámica rompe el patrón. Se registra como \"objeto de arte\" antes de registrarse como \"tequila.\"\n\nLas 3 botellas más etiquetadas en IG global: materiales no estándar.\n\nFuente: Social Blade / IG Analytics, 2024.\n\nEl material es estrategia de distribución."+HT},
+{d:"2026-07-03",pl:"Detalles & Craft",f:"Photo Post",a:3,as:"craft",ph:"Scale",tp:"3A — First Mover Stats",ig:"Establecimientos con marcas exclusivas reportan +18% en ticket por mesa cuando el staff las recomienda activamente.\n\nNo porque la botella sea más cara. Porque la conversación que genera sube el nivel de toda la experiencia.\n\n\"Somos los primeros en la ciudad en tenerlo.\"\n\nEsa frase vende una experiencia que el comensal va a contar.\n\nFuente: Nielsen CGA, México 2023."+HT},
+{d:"2026-07-05",pl:"Lifestyle Premium",f:"Photo Post",a:2,as:"lifestyle",ph:"Scale",tp:"2A — 50+ Tagged Posts",ig:"Barras con 50+ publicaciones de clientes al mes: 3x mayor recordación de marca.\n\n3 veces. Sin gastar un peso en pauta.\n\nEl back bar de tu restaurante es un billboard.\n¿Está anunciando algo que valga la pena fotografiar?\n\nMoramor existe para ser esa botella.\nLa que hace que saquen el celular.\n\nCerámica talavera artesanal. Diseñada para la mesa. Optimizada para el feed."+HT},
+{d:"2026-07-08",pl:"Producto Hero",f:"Photo Post",a:1,as:"hero",ph:"Scale",tp:"1C — P&L Ignores Undersold",ig:"Un resort en Los Cabos rastreó copas por 30 días. 54% fueron \"default.\"\n\nIntrodujeron protocolo: dos opciones premium antes de ir al well.\n\nDefault bajó de 54% a 31%.\nIngreso por copa: +27%.\nIngreso mensual de tequila: +$87,000 MXN.\n\nEl cliente que dice \"solo un tequila\" no es tacaño.\nEstá esperando que lo guíes.\n\nGuíalo hacia arriba."+HT},
+{d:"2026-07-10",pl:"Cultura & Origen",f:"Carousel",a:7,as:"cultura",ph:"Scale",tp:"7B — Multinational Data (carousel)",ig:"📌 Slide 1: 6 de 10 marcas ultra-premium en México = conglomerados multinacionales.\n\n📌 Slide 2: Su presupuesto de contenido: 8-15x más alto que independientes mexicanas.\n\n📌 Slide 3: PERO independientes que igualan calidad de contenido crecen al 2x.\n\n📌 Slide 4: La ventana está abierta. El consumidor quiere marcas que se vean como lujo global pero se sientan como herencia local.\n\nFuentes: IWSR 2024, Euromonitor 2024.\n\nGuarda esto. 📌"+HT},
+{d:"2026-07-12",pl:"Lifestyle Premium",f:"Photo Post",a:6,as:"lifestyle",ph:"Scale",tp:"6B — Moramor Nights Results",ig:"Antes: catas técnicas mensuales. 12 asistentes. Conversión a regulares: casi nula.\n\nDespués: \"Moramor Nights\" — cena 4 tiempos, música, cada expresión con un curso. Sin notas de cata. Solo momentos.\n\nPrimer evento: 45 asistentes (3.7x anterior).\nTicket: $1,800 MXN (vs $400).\n34 publicaciones de asistentes.\n8 regresaron en 2 semanas pidiendo Moramor por nombre.\n\nLa gente no paga premium por educación.\nPaga premium por una noche de la que va a hablar."+HT},
+{d:"2026-07-15",pl:"Detalles & Craft",f:"Photo Post",a:5,as:"craft",ph:"Scale",tp:"5C — 15-Second Story",ig:"15 segundos.\n\nEso es lo que tiene un mesero para contar la historia antes de que el comensal decida.\n\nMoramor en 15 segundos:\n\n\"Esta es Moramor. Cerámica talavera artesanal, 100% agave. Nació de una historia de amor en Jalisco. Somos de los pocos que la tienen.\"\n\n+45% en tasa de recomendación cuando el staff cuenta la historia en <20 seg.\n\nFuente: Diageo Bar Academy, 2023."+HT},
+{d:"2026-07-17",pl:"Producto Hero",f:"Photo Post",a:3,as:"hero",ph:"Scale",tp:"3C — Discovery Bars",ig:"Los establecimientos conocidos como \"bares de descubrimiento\" reportan 35% mayor retención de clientes.\n\nLa clave no es tener más marcas. Es tener las correctas.\n\n\"¿Ya fueron a [tu bar]? Tienen algo que no he visto en ningún otro lado.\"\n\nEsa frase es el marketing más efectivo que existe.\n\nFuente: CGA Strategy, 2024."+HT},
+{d:"2026-07-19",pl:"Lifestyle Premium",f:"Threads",a:1,as:null,ph:"Scale",tp:"1A — How Many Could You Remove?",ig:"¿Cuántos de tus tequilas actuales podrías quitar mañana sin que un solo cliente lo note?\n\n40 SKUs = 3x más gestión de inventario que 15 curados.\n\nEl staff recomienda con confianza 5-7 productos. El resto es peso muerto.\n\nMenos botellas. Más intención.\nCuración > acumulación."},
+{d:"2026-07-22",pl:"Branding & Diseño",f:"Photo Post",a:0,as:"branding",ph:"Scale",tp:"Brand Statement",ig:"Cuatro expresiones. Un solo estándar.\n\nPara las noches que merecen más.\n\nMoramor.\nTequila 100% Agave.\nCerámica talavera artesanal.\nHecho en Jalisco, México.\n\n750 ml · 40% Alc. Vol."+HT},
+{d:"2026-07-24",pl:"Lifestyle Premium",f:"Photo Post",a:4,as:"lifestyle",ph:"Scale",tp:"4A — Same Photos Different Words",ig:"Tasa de guardados: +280%.\nDMs: se duplicaron.\nShares: de 0.3% a 2.1%.\n\n¿Qué cambió? Las fotos no. Solo las palabras.\n\nAntes: \"Reposado descansado en barrica de roble con notas de vainilla.\"\nDespués: \"La botella que estuvo entre nosotros la noche que todo cambió.\"\n\nLas fotos construyen la percepción.\nLas palabras generan la acción.\n\nEl upgrade más barato con el mayor retorno."+HT},
+{d:"2026-07-26",pl:"Detalles & Craft",f:"Photo Post",a:6,as:"craft",ph:"Scale",tp:"6C — Who Copies Your Ceremony?",ig:"Cualquiera copia tu receta de coctel.\nNadie copia tu ceremonia.\n\nReels de rituales: 4.7% tasa de guardado.\nRecetas: 1.2%.\n\n3.9x más guardados.\n\nLa cerámica de Moramor crea un ritual naturalmente. El peso. La lentitud. La presencia.\n\nNo diseñamos una botella bonita.\nDiseñamos un momento.\n\nFuente: Sprout Social, 2024."+HT},
+{d:"2026-07-29",pl:"Producto Hero",f:"Carousel",a:0,as:"hero",ph:"Scale",tp:"Campaign Recap (full collection)",ig:"Cuatro meses. Una marca. Una historia que apenas comienza.\n\n📌 Slide 1: Empezamos con una promesa — que el tequila mexicano premium merece un estándar más alto.\n\n📌 Slide 2: BLANCO — Para los que prefieren la verdad sin filtros.\n\n📌 Slide 3: REPOSADO — Para los que saben que el tiempo mejora todo.\n\n📌 Slide 4: AÑEJO — Para los que aprecian la complejidad.\n\n📌 Slide 5: EXTRA AÑEJO — Para los que buscan lo extraordinario.\n\n📌 Slide 6: Moramor. Cerámica talavera. 100% Agave. Hecho en Jalisco con más amor.\n\nGracias por acompañarnos.\nLo que viene es aún mejor."+HT},
+{d:"2026-07-31",pl:"Branding & Diseño",f:"Photo Post",a:0,as:"branding",ph:"Scale",tp:"Campaign Close (gold quote on navy)",ig:"\"En Moramor no solo hacemos tequila.\nEmbotellamos amor.\"\n\n— Jacob Amselem, Fundador & CEO.\n\nCon más y más amor.\n\nMoramor."+HT}
+];
+
+let curMonth="2026-04",curFilter="All";
+
+function render(){
+  const mi=MS.find(m=>m.k===curMonth);
+  document.getElementById("subtitleCount").textContent=`48 fotos + 12 videos · 4 meses · ${P.length} piezas con captions listos`;
+  document.getElementById("phaseLabel").textContent=mi.p;
+  document.getElementById("monthDisplay").textContent=mi.l+" 2026";
+
+  // Month buttons
+  let mbH="";MS.forEach(m=>{mbH+=`<button class="mb sans ${m.k===curMonth?"a":""}" onclick="setMonth('${m.k}')">${m.l} — ${m.p}</button>`});
+  document.getElementById("monthBtns").innerHTML=mbH;
+
+  // Filter counts
+  const mp=P.filter(p=>p.d.startsWith(curMonth));
+  const fc={};mp.forEach(p=>{fc[p.f]=(fc[p.f]||0)+1});
+  let fH=`<span class="fl sans">FILTER:</span><button class="fb sans ${curFilter==="All"?"a":""}" onclick="setFilter('All')">All (${mp.length})</button>`;
+  Object.entries(FT).forEach(([f,info])=>{if(fc[f])fH+=`<button class="fb sans ${curFilter===f?"a":""}" onclick="setFilter('${f}')">${info.i} ${f} (${fc[f]})</button>`});
+  document.getElementById("filterBtns").innerHTML=fH;
+
+  // Day headers
+  let dhH="";["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"].forEach(d=>{dhH+=`<div class="dh sans">${d}</div>`});
+  document.getElementById("dayHeaders").innerHTML=dhH;
+
+  // Calendar grid
+  const yr=+curMonth.split("-")[0],mo=+curMonth.split("-")[1];
+  const dim=new Date(yr,mo,0).getDate();
+  const fdw=new Date(yr,mo-1,1).getDay();
+  const filtered=curFilter==="All"?mp:mp.filter(p=>p.f===curFilter);
+
+  let gH="";
+  for(let i=0;i<fdw;i++)gH+=`<div class="cell empty"></div>`;
+  for(let day=1;day<=dim;day++){
+    const ds=`${curMonth}-${String(day).padStart(2,"0")}`;
+    const dp=filtered.filter(p=>p.d===ds);
+    const hp=dp.length>0?"hp":"";
+    let pillsH="";
+    dp.forEach((p,idx)=>{
+      const pc=PC[p.pl]||{bg:"#1a1a2d",tx:"#888"};
+      const fi=FT[p.f]||{i:"•",c:"#888"};
+      pillsH+=`<div class="pill sans" style="background:${pc.bg};color:${pc.tx};border-left:2px solid ${fi.c}" onclick="event.stopPropagation();openPost(${P.indexOf(p)})">${fi.i} ${p.pl.substring(0,14)}</div>`;
+    });
+    const clk=dp.length===1?`onclick="openPost(${P.indexOf(dp[0])})"`:dp.length>1?"":``;
+    gH+=`<div class="cell ${hp}" ${clk}><div class="cell-day sans">${day}</div>${pillsH}</div>`;
+  }
+  document.getElementById("calGrid").innerHTML=gH;
+
+  // Sidebar stats
+  const thru=P.filter(p=>p.d<=curMonth+"-31");
+  const u={hero:0,craft:0,lifestyle:0,cultura:0,branding:0,cinematico:0,craftVideo:0,lifestyleVideo:0,brandingAnim:0};
+  thru.forEach(p=>{if(p.as&&u[p.as]!==undefined)u[p.as]++});
+  const t={hero:12,craft:10,lifestyle:12,cultura:8,branding:6,cinematico:4,craftVideo:3,lifestyleVideo:3,brandingAnim:2};
+  const gC="#C8A24E",vC="#FF6BAA";
+  let sH=`<div class="side-title sans" style="color:${gC}">FOTOS (ACUM. ${mi.l.toUpperCase()})</div>`;
+  [{k:"hero",l:"Hero"},{k:"craft",l:"Craft"},{k:"lifestyle",l:"Lifestyle"},{k:"cultura",l:"Cultura"},{k:"branding",l:"Branding"}].forEach(a=>{
+    sH+=`<div class="stat-row"><div class="stat-head"><span class="stat-label sans">${a.l}</span><span class="stat-val sans" style="color:${gC}">${u[a.k]}/${t[a.k]}</span></div><div class="bar"><div class="bar-fill" style="width:${(u[a.k]/t[a.k])*100}%;background:${gC}"></div></div></div>`;
+  });
+  sH+=`<div class="side-title sans" style="color:${vC};margin-top:14px">VIDEOS</div>`;
+  [{k:"cinematico",l:"Cinemático"},{k:"craftVideo",l:"Craft"},{k:"lifestyleVideo",l:"Lifestyle"},{k:"brandingAnim",l:"Branding"}].forEach(a=>{
+    sH+=`<div class="stat-row"><div class="stat-head"><span class="stat-label sans">${a.l}</span><span class="stat-val sans" style="color:${vC}">${u[a.k]}/${t[a.k]}</span></div><div class="bar"><div class="bar-fill" style="width:${(u[a.k]/t[a.k])*100}%;background:${vC}"></div></div></div>`;
+  });
+  sH+=`<div class="count sans">${P.filter(p=>p.d.startsWith(curMonth)).length}<span>posts este mes</span></div>`;
+  document.getElementById("sideStats").innerHTML=sH;
+}
+
+function setMonth(m){curMonth=m;curFilter="All";render()}
+function setFilter(f){curFilter=f;render()}
+
+function openPost(idx){
+  const p=P[idx];
+  const pc=PC[p.pl]||{bg:"#1a1a2d",tx:"#888",bd:"#333"};
+  const fi=FT[p.f]||{i:"•",c:"#888"};
+  const dateStr=new Date(p.d+"T12:00:00").toLocaleDateString("es-MX",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+  const assetLabel=p.as?AN[p.as]:"—";
+  const distLabel=DIST[p.f]||"";
+
+  let angTag="";
+  if(p.a>0)angTag=`<span class="tag sans" style="background:#0d2228;color:#6BC8DB;border:1px solid #28506a">Angle ${p.a}</span>`;
+
+  document.getElementById("modal").innerHTML=`
+    <div class="modal-top">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <div class="modal-phase sans">${(p.ph||"").toUpperCase()}</div>
+      <div class="modal-date sans">${dateStr}</div>
+      <div class="modal-title">${p.tp}</div>
+      <div class="tags">
+        <span class="tag sans" style="background:${pc.bg};color:${pc.tx};border:1px solid ${pc.bd}">${p.pl}</span>
+        <span class="tag sans" style="background:#1a1a2d;color:${fi.c};border:1px solid ${fi.c}33">${fi.i} ${p.f}</span>
+        ${angTag}
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="caption-box">
+        <div class="caption-head">
+          <div class="caption-label sans">CAPTION PARA INSTAGRAM</div>
+          <button class="copy-btn sans" id="copyBtn" onclick="copyCaption(${idx})">COPIAR</button>
+        </div>
+        <div class="caption-text">${escHtml(p.ig)}</div>
+      </div>
+      <div class="info-row">
+        ${p.as?`<div class="info-card"><div class="info-label sans">ASSET PÍLDORA</div><div class="info-val sans">${assetLabel}</div></div>`:""}
+        <div class="info-card"><div class="info-label sans">DISTRIBUCIÓN</div><div class="info-dist sans">${distLabel}</div></div>
+      </div>
+    </div>`;
+  document.getElementById("overlay").classList.add("show");
+}
+
+function closeModal(){document.getElementById("overlay").classList.remove("show")}
+document.getElementById("overlay").addEventListener("click",function(e){if(e.target===this)closeModal()});
+
+function copyCaption(idx){
+  const t=P[idx].ig.replace(/\[THREADS[^\]]*\]\n?\n?/g,"");
+  navigator.clipboard.writeText(t).then(()=>{
+    const b=document.getElementById("copyBtn");
+    b.textContent="✓ COPIADO";b.classList.add("ok");
+    setTimeout(()=>{b.textContent="COPIAR";b.classList.remove("ok")},2000);
+  });
+}
+
+function escHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>")}
+
+render();
+</script>
+</body>
+</html>
