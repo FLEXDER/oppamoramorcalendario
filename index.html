@@ -1,2 +1,222 @@
-// This file was already created above with all the content
-// Re-creating to get the output path right
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moramor — Content Calendar</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C8A24E;--bg:#06091F;--card:#0c1235;--card-h:#111a45;--txt:#E8E6E0;--txt2:#8E8C86;--wh:#FFF;--bdr:#111835}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--txt);font-family:'Cormorant Garamond',Georgia,serif;display:flex;flex-direction:column}
+.sans{font-family:'Outfit',sans-serif}
+.header{padding:10px 20px;border-bottom:1px solid var(--bdr);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.h-left{display:flex;align-items:center;gap:16px}
+.brand{font-size:8px;font-weight:600;letter-spacing:3px;color:var(--gold)}
+h1{font-size:20px;font-weight:300;color:var(--wh);line-height:1}
+.h-center{display:flex;gap:5px;flex-wrap:wrap}
+.mb{cursor:pointer;padding:6px 14px;border:1px solid var(--bdr);background:transparent;color:var(--txt2);border-radius:5px;font-family:'Outfit',sans-serif;font-size:11px;transition:all .2s}
+.mb:hover{border-color:var(--gold);color:var(--gold)}
+.mb.a{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:600}
+.mb.gl{border-color:#5B3D8F55;color:#9B8AFF}.mb.gl:hover{border-color:#9B8AFF}.mb.gl.a{background:#9B8AFF;color:var(--bg);border-color:#9B8AFF}
+.h-right{display:flex;align-items:center;gap:6px}
+.fb{cursor:pointer;padding:3px 9px;border:1px solid #1a2040;background:transparent;color:var(--txt2);border-radius:14px;font-family:'Outfit',sans-serif;font-size:10px;transition:all .2s}
+.fb:hover{border-color:rgba(200,162,78,.27)}.fb.a{background:rgba(200,162,78,.13);color:var(--gold);border-color:rgba(200,162,78,.27)}
+.phase-tag{font-size:10px;color:var(--gold);font-weight:500;margin-left:8px}
+.main-area{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.cal-wrap{flex:1;display:flex;flex-direction:column;padding:6px;overflow:hidden}
+.day-headers{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.dh{text-align:center;font-size:10px;font-weight:500;color:var(--txt2);padding:4px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;flex:1}
+.cell{border:1px solid var(--bdr);border-radius:6px;background:var(--card);transition:all .2s;padding:6px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.cell.empty{background:transparent;border-color:transparent}
+.cell.hp{cursor:pointer}.cell.hp:hover{border-color:rgba(200,162,78,.4);background:var(--card-h);transform:scale(1.01)}
+.cell-day{font-size:12px;font-weight:500;color:rgba(142,140,134,.3);margin-bottom:auto}.cell.hp .cell-day{color:var(--wh)}
+.pills{display:flex;flex-direction:column;gap:3px;margin-top:4px}
+.pill{padding:4px 7px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:10px;font-weight:500;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;transition:opacity .2s}.pill:hover{opacity:.8}
+.pill .sb{display:inline-block;background:#C8A24E;color:#06091F;font-size:8px;font-weight:700;padding:0 4px;border-radius:2px;margin-left:4px;vertical-align:middle}
+/* Glossary */
+.glos-wrap{flex:1;overflow-y:auto;padding:24px 32px}
+.glos-wrap::-webkit-scrollbar{width:5px}.glos-wrap::-webkit-scrollbar-thumb{background:rgba(200,162,78,.2);border-radius:4px}
+.gs{margin-bottom:32px}.gs-t{font-size:11px;font-weight:600;letter-spacing:3px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--bdr)}
+.gg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.gc{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:16px;transition:all .2s;border-left:4px solid transparent}
+.gc:hover{background:var(--card-h)}.gc-h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.gc-i{font-size:20px}.gc-t{font-size:14px;font-weight:600;color:var(--wh)}.gc-c{font-size:10px;color:var(--txt2);background:#111835;padding:2px 8px;border-radius:10px;margin-left:auto}
+.gc-d{font-size:12px;line-height:1.6;color:var(--txt2)}.gc-m{font-size:11px;font-weight:500;margin-top:8px;padding:6px 10px;border-radius:4px;background:#06091F}
+.gc-s{font-size:11px;color:var(--txt2);margin-top:8px;line-height:1.5}.gc-s span{color:var(--txt);font-weight:500}
+/* Modal */
+.overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.75);z-index:100;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}.overlay.show{display:flex}
+.modal{background:#0a0f2e;border:1px solid rgba(200,162,78,.2);border-radius:12px;max-width:560px;width:92%;max-height:88vh;overflow-y:auto;position:relative}
+.modal::-webkit-scrollbar{width:4px}.modal::-webkit-scrollbar-thumb{background:rgba(200,162,78,.2);border-radius:4px}
+.mt{padding:24px 24px 0}.mc{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--txt2);cursor:pointer;font-size:22px;line-height:1}
+.mp{font-size:9px;font-weight:600;letter-spacing:2px;color:var(--gold);margin-bottom:3px}
+.md2{font-size:12px;color:var(--txt2);margin-bottom:14px}
+.mtl{font-size:20px;font-weight:400;color:var(--wh);margin-bottom:10px;line-height:1.3}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-family:'Outfit',sans-serif;font-size:10px;font-weight:500}
+.mbdy{padding:0 24px 20px}
+.sbox{background:linear-gradient(135deg,#1a1a0d,#1a1408);border:1px solid #C8A24E44;border-radius:8px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px}
+.si{font-size:18px;flex-shrink:0}.sc{flex:1}.stl{font-size:10px;font-weight:600;letter-spacing:2px;color:var(--gold);margin-bottom:4px}.sds{font-size:12px;color:var(--txt);line-height:1.5}
+.cbox{background:#06091F;border-radius:8px;padding:16px;border-left:3px solid var(--gold);margin-bottom:14px}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.cl{font-size:9px;font-weight:600;letter-spacing:2px;color:var(--gold)}
+.cpb{cursor:pointer;padding:8px 20px;border:1px solid var(--gold);background:transparent;color:var(--gold);border-radius:6px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;transition:all .2s;letter-spacing:1px}
+.cpb:hover{background:var(--gold);color:var(--bg)}.cpb.ok{background:#2D8B55;border-color:#2D8B55;color:#fff}
+.ct{font-size:12.5px;line-height:1.7;color:#d4d2cc;white-space:pre-wrap;word-break:break-word;font-family:'Outfit',sans-serif}
+.ir{display:flex;gap:8px}.ic{flex:1;background:#06091F;border-radius:6px;padding:10px}
+.il{font-size:9px;font-weight:600;letter-spacing:1px;color:var(--txt2);margin-bottom:3px}
+.iv{font-size:11px;color:var(--wh)}.idt{font-size:10px;color:var(--txt2);line-height:1.5}
+</style>
+</head>
+<body>
+<div class="header">
+<div class="h-left"><div><div class="sans brand">MORAMOR TEQUILA</div><h1>Content Calendar</h1></div><span class="sans phase-tag" id="pL"></span></div>
+<div class="h-center" id="mB"></div>
+<div class="h-right sans" id="fB"></div>
+</div>
+<div class="main-area" id="mainArea"></div>
+<div class="overlay" id="ov"><div class="modal" id="md"></div></div>
+<script>
+var HT="\n\n.\n.\n.\n#Moramor #TequilaPremium #Tequila100Agave #TequilaMexicano #Talavera #LuxurySpirits #MexicanLuxury #HechoEnMexico #CeramicBottle #PremiumTequila #Jalisco #MoramorTequila";
+var PC={"Producto Hero":{bg:"#1a1440",tx:"#9B8AFF",bd:"#3d2e80"},"Detalles & Craft":{bg:"#1a2d18",tx:"#7ADB6B",bd:"#2e6028"},"Lifestyle Premium":{bg:"#2d1a28",tx:"#DB6BAA",bd:"#6a2e55"},"Cultura & Origen":{bg:"#2d2218",tx:"#DBA66B",bd:"#6a5028"},"Branding & Diseño":{bg:"#18222d",tx:"#6BA6DB",bd:"#28506a"},"Producto Cinemático":{bg:"#2d1828",tx:"#FF6BAA",bd:"#801050"},"Craft & Detalle Video":{bg:"#182d1a",tx:"#6BDB7A",bd:"#286030"},"Lifestyle Mood Video":{bg:"#2d1a1a",tx:"#DB8A6B",bd:"#6a3828"},"Branding Animado":{bg:"#1a1a2d",tx:"#8A8AFF",bd:"#3838a0"}};
+var FT={"Photo Post":{c:"#C8A24E",i:"\ud83d\udcf7"},"Reel":{c:"#FF6BAA",i:"\ud83c\udfac"},"Carousel":{c:"#6BA6DB",i:"\ud83d\uddbc"},"Threads":{c:"#9B8AFF",i:"\ud83e\uddf5"}};
+var AN={hero:"\ud83d\udcf7 Producto Hero",craft:"\ud83d\udcf7 Detalles & Craft",lifestyle:"\ud83d\udcf7 Lifestyle Premium",cultura:"\ud83d\udcf7 Cultura & Origen",branding:"\ud83d\udcf7 Branding & Dise\u00f1o",cinematico:"\ud83c\udfac Cinem\u00e1tico (10-15s)",craftVideo:"\ud83c\udfac Craft Video (10-15s)",lifestyleVideo:"\ud83c\udfac Lifestyle Mood (10-15s)",brandingAnim:"\ud83c\udfac Branding Anim. (10-15s)"};
+var DIST={"Reel":"IG Reels \u2192 TikTok \u2192 YT Shorts. Story teaser. Threads +24h.","Photo Post":"IG Feed. Stories con animaci\u00f3n. Threads adaptaci\u00f3n +24h.","Carousel":"IG carousel. Cada slide = Story. Threads como lista.","Threads":"Threads texto puro. Adaptar a IG caption con foto despu\u00e9s."};
+var MS=[{k:"2026-04",l:"Abril",p:"Foundation + Launch"},{k:"2026-05",l:"Mayo",p:"Optimization"},{k:"2026-06",l:"Junio",p:"Acceleration"},{k:"2026-07",l:"Julio",p:"Scale & Refine"}];
+var SL={"quote":"Quote Card \u2014 Sebas toma la raw image y le monta la frase con tipograf\u00eda Moramor sobre fondo editorial.","composici\u00f3n":"Composici\u00f3n Gr\u00e1fica \u2014 Sebas combina raw images con elementos de dise\u00f1o: patrones talavera, texturas, overlays. Su toque creativo.","carousel":"Carousel Editorial \u2014 Sebas dise\u00f1a cada slide con layout de marca: tipograf\u00eda, colores, composici\u00f3n premium.","original":"Idea Original \u2014 Libertad creativa total. La pieza debe sentirse moderna, premium, y alineada con Moramor."};
+
+var P=[
+{d:"2026-04-01",pl:"Producto Hero",f:"Photo Post",a:0,as:"hero",ph:"Foundation Grid",tp:"Blanco \u2014 Hero on navy",s:0,ig:"Blanco.\n\nEl agave antes de que el tiempo lo toque.\nFresco. Cristalino. Sin concesiones.\n\nAromas de agave cocido, hierbas frescas, c\u00edtricos y fruta.\n\n750 ml \u00b7 40% Alc. Vol. \u00b7 100% Agave\nCer\u00e1mica talavera artesanal."+HT},
+{d:"2026-04-02",pl:"Producto Hero",f:"Photo Post",a:0,as:"hero",ph:"Foundation Grid",tp:"Reposado \u2014 Hero on navy",s:0,ig:"Reposado.\n\nEl tiempo le dio lo que el agave no pod\u00eda hacer solo.\n\nCaramelo especiado. Frutas tropicales. Vainilla.\nDorado p\u00e1lido con destellos brillantes.\n\nLa paciencia tiene sabor.\n\n750 ml \u00b7 40% Alc. Vol. \u00b7 100% Agave\nCer\u00e1mica talavera artesanal."+HT},
+{d:"2026-04-03",pl:"Producto Hero",f:"Photo Post",a:0,as:"hero",ph:"Foundation Grid",tp:"A\u00f1ejo \u2014 Hero on navy",s:0,ig:"A\u00f1ejo.\n\nDe 1 a 3 a\u00f1os en barrica de roble.\nLo que entra joven sale con car\u00e1cter.\n\nAgave cocido. Almendras tostadas. Clavo. Vainilla.\n\u00c1mbar con matices cobrizos.\n\nHay cosas que solo el tiempo puede crear.\n\n750 ml \u00b7 40% Alc. Vol. \u00b7 100% Agave\nCer\u00e1mica talavera artesanal."+HT},
+{d:"2026-04-04",pl:"Detalles & Craft",f:"Photo Post",a:0,as:"craft",ph:"Foundation Grid",tp:"Close-up talavera detail",s:0,ig:"El detalle no es decoraci\u00f3n.\nEs declaraci\u00f3n.\n\nCada relieve. Cada trazo. Cada imperfecci\u00f3n calculada.\n\nCer\u00e1mica talavera artesanal \u2014 una tradici\u00f3n que lleva siglos perfeccion\u00e1ndose.\n\nCuando la sostienes, lo sientes."+HT},
+{d:"2026-04-05",pl:"Detalles & Craft",f:"Photo Post",a:0,as:"craft",ph:"Foundation Grid",tp:"Macro ceramic texture",s:0,ig:"Cer\u00e1mica. No vidrio.\n\nCada botella pesa m\u00e1s. Cuesta m\u00e1s. Tarda m\u00e1s en producirse.\n\nPero cuando llega a la mesa, nadie pregunta de qu\u00e9 marca es.\n\nPreguntan qu\u00e9 es eso."+HT},
+{d:"2026-04-06",pl:"Branding & Dise\u00f1o",f:"Photo Post",a:0,as:"craft",ph:"Foundation Grid",tp:"Quote card \u2014 \"El dorado confirma\"",s:1,st:"quote",ig:"El dorado no susurra.\nConfirma.\n\nLo que se siente diferente, se recuerda diferente."+HT},
+{d:"2026-04-07",pl:"Lifestyle Premium",f:"Photo Post",a:0,as:"lifestyle",ph:"Foundation Grid",tp:"Bottle on elegant table",s:0,ig:"Algunas noches piden algo diferente.\n\nNo m\u00e1s fuerte. No m\u00e1s caro.\nDiferente.\n\nMoramor no es para todas las noches.\nEs para las que importan."+HT},
+{d:"2026-04-08",pl:"Lifestyle Premium",f:"Photo Post",a:0,as:"lifestyle",ph:"Foundation Grid",tp:"Pour moment, warm light",s:0,ig:"Cuando la cer\u00e1mica toca la mesa, algo cambia.\n\nLa conversaci\u00f3n se pausa un segundo.\nLas miradas se dirigen al centro.\n\nNo es el tequila.\nEs el momento."+HT},
+{d:"2026-04-09",pl:"Cultura & Origen",f:"Photo Post",a:0,as:"cultura",ph:"Foundation Grid",tp:"Bottle with artisanal texture",s:0,ig:"Jalisco, M\u00e9xico.\n\nDonde el agave azul crece bajo el mismo sol que ha dado forma a generaciones de maestros tequileros.\n\nRa\u00edz mexicana. Lenguaje contempor\u00e1neo.\nSin folclor literal. Sin pedir permiso."+HT},
+{d:"2026-04-10",pl:"Producto Cinem\u00e1tico",f:"Reel",a:4,as:"cinematico",ph:"Content Push",tp:"360\u00b0 reveal \u2014 Ceramic presence",s:0,ig:"750 ml.\nCer\u00e1mica talavera.\nHecho para quedarse en la mesa.\nY en la memoria."+HT},
+{d:"2026-04-11",pl:"Branding & Dise\u00f1o",f:"Threads",a:7,as:null,ph:"Content Push",tp:"7C \u2014 The Price Apology",s:0,ig:"Las marcas mexicanas de tequila premium tienen un patr\u00f3n: se disculpan por su precio.\n\nDescuentan para cerrar. Lideran con \"valor\" en vez de valor.\n\nEl precio no es un n\u00famero. Es una declaraci\u00f3n.\n\n\u00bfO no?"},
+{d:"2026-04-12",pl:"Lifestyle Premium",f:"Photo Post",a:2,as:"lifestyle",ph:"Content Push",tp:"2A \u2014 First impression is digital",s:0,ig:"La primera impresi\u00f3n ya no es en la mesa.\nEs en el feed.\n\nMoramor se dise\u00f1\u00f3 para ambos momentos."+HT},
+{d:"2026-04-15",pl:"Craft & Detalle Video",f:"Reel",a:5,as:"craftVideo",ph:"Content Push",tp:"5C \u2014 Story behind the bottle",s:0,ig:"Nacida de un instante de amor que cambi\u00f3 todo.\n\nUna noche ordinaria. Un peque\u00f1o bar de tequila.\nY una promesa que se convirti\u00f3 en marca.\n\nMoramor."+HT},
+{d:"2026-04-17",pl:"Branding & Dise\u00f1o",f:"Photo Post",a:1,as:"hero",ph:"Content Push",tp:"Quote card \u2014 \"Lo que vale, no se negocia\"",s:1,st:"quote",ig:"Cuatro expresiones.\nUn solo est\u00e1ndar.\n\nPara quienes saben que lo que vale, no se negocia."+HT},
+{d:"2026-04-19",pl:"Lifestyle Premium",f:"Threads",a:6,as:null,ph:"Content Push",tp:"6B \u2014 Sell the Night",s:0,ig:"Solo el 12% de consumidores premium identifican correctamente perfiles de sabor en catas a ciegas.\n\nPero el 78% dice que \"la ocasi\u00f3n y el ambiente\" son el factor #1 para elegir marca.\n\nNadie compra especificaciones. Compran la noche que quieren tener.\n\n\u00bfAcuerdo o desacuerdo?"},
+{d:"2026-04-22",pl:"Lifestyle Mood Video",f:"Reel",a:3,as:"lifestyleVideo",ph:"Content Push",tp:"3B \u2014 The exclusive moment",s:0,ig:"Lo que est\u00e1 en todos lados se vuelve invisible.\n\nLo que solo est\u00e1 aqu\u00ed se vuelve inolvidable.\n\nMoramor. Para los pocos que saben."+HT},
+{d:"2026-04-24",pl:"Branding & Dise\u00f1o",f:"Threads",a:7,as:null,ph:"Content Push",tp:"7A \u2014 The Folklore Trap",s:0,ig:"Envolver tu botella en una bandera no la hace premium. La hace souvenir.\n\nLas que crecen 3x m\u00e1s r\u00e1pido combinan herencia con dise\u00f1o contempor\u00e1neo minimal.\n\n\u00bfTu marca se ve como lujo o como tienda de aeropuerto?"},
+{d:"2026-04-26",pl:"Branding & Dise\u00f1o",f:"Carousel",a:4,as:"craft",ph:"Content Push",tp:"Carousel \u2014 Cer\u00e1mica: el material es el mensaje",s:1,st:"carousel",ig:"Cer\u00e1mica.\n\n\ud83d\udccc Artesanal. Cada botella es \u00fanica.\n\ud83d\udccc M\u00e1s peso. M\u00e1s presencia en la mesa.\n\ud83d\udccc Dise\u00f1o talavera \u2014 siglos de tradici\u00f3n mexicana.\n\ud83d\udccc Sin competidor directo en el segmento ultra-premium.\n\ud83d\udccc No es empaque. Es la primera impresi\u00f3n.\n\nMoramor. El material es el mensaje."+HT},
+{d:"2026-05-01",pl:"Producto Cinem\u00e1tico",f:"Reel",a:6,as:"cinematico",ph:"Optimization",tp:"6C \u2014 The pour ritual",s:0,ig:"La cer\u00e1mica exige un servicio diferente.\n\nM\u00e1s lento. M\u00e1s presente. M\u00e1s intencional.\n\nEso no es un inconveniente.\nEs el ritual."+HT},
+{d:"2026-05-03",pl:"Cultura & Origen",f:"Photo Post",a:7,as:"cultura",ph:"Optimization",tp:"7A \u2014 Heritage, not folklore",s:0,ig:"Herencia sin clich\u00e9.\nOrigen sin disculpa.\n\nLa talavera en Moramor no es adorno.\nEs lenguaje.\n\nRefinado. Minimal. Contempor\u00e1neo."+HT},
+{d:"2026-05-06",pl:"Producto Hero",f:"Photo Post",a:3,as:"hero",ph:"Optimization",tp:"3A \u2014 Extra A\u00f1ejo hero",s:0,ig:"Extra A\u00f1ejo.\n\n3+ a\u00f1os en barrica.\nMadera. Chocolate. Camote asado. Vainilla arom\u00e1tica.\n\u00c1mbar oscuro con matices rojizos.\n\nLo extraordinario tarda.\nPero cuando llega, se nota.\n\n750 ml \u00b7 40% Alc. Vol. \u00b7 100% Agave\nCer\u00e1mica talavera artesanal."+HT},
+{d:"2026-05-08",pl:"Lifestyle Mood Video",f:"Reel",a:2,as:"lifestyleVideo",ph:"Optimization",tp:"2C \u2014 Made for feed and table",s:0,ig:"Dise\u00f1ada para la mesa.\nOptimizada para el feed.\n\nMoramor."+HT},
+{d:"2026-05-10",pl:"Branding & Dise\u00f1o",f:"Photo Post",a:4,as:"craft",ph:"Optimization",tp:"Composici\u00f3n \u2014 S\u00edmbolo + patr\u00f3n talavera",s:1,st:"composici\u00f3n",ig:"Cada s\u00edmbolo tiene una historia.\n\nDos guardianes. Una promesa.\nM\u00e1s amor.\n\nMoramor."+HT},
+{d:"2026-05-13",pl:"Branding & Dise\u00f1o",f:"Carousel",a:0,as:"lifestyle",ph:"Optimization",tp:"Carousel editorial \u2014 El momento Moramor",s:1,st:"carousel",ig:"El momento Moramor.\n\n\ud83d\udccc Una mesa bien puesta.\n\ud83d\udccc Una conversaci\u00f3n que importa.\n\ud83d\udccc Una botella que no necesita presentaci\u00f3n.\n\ud83d\udccc Un sabor que no necesita explicaci\u00f3n.\n\ud83d\udccc Una noche que no necesita repetici\u00f3n \u2014 porque no se olvida.\n\nCuatro expresiones. Un solo est\u00e1ndar."+HT},
+{d:"2026-05-15",pl:"Branding Animado",f:"Reel",a:0,as:"brandingAnim",ph:"Optimization",tp:"Symbol animation + fade to bottle",s:0,ig:"Cuatro expresiones.\nUn solo est\u00e1ndar.\n\nBlanco \u00b7 Reposado \u00b7 A\u00f1ejo \u00b7 Extra A\u00f1ejo\n\n100% Agave. Cer\u00e1mica talavera artesanal.\nHecho en Jalisco.\n\nEn Moramor no solo hacemos tequila.\nEmbotellamos amor."+HT},
+{d:"2026-05-17",pl:"Cultura & Origen",f:"Photo Post",a:5,as:"cultura",ph:"Optimization",tp:"5C \u2014 The origin story",s:0,ig:"Un instante de amor que cambi\u00f3 todo.\n\nDesde esa noche, Moramor.\n\nCon m\u00e1s y m\u00e1s amor.\n\u2014 Jacob Amselem, Fundador & CEO"+HT},
+{d:"2026-05-20",pl:"Craft & Detalle Video",f:"Reel",a:4,as:"craftVideo",ph:"Optimization",tp:"4C \u2014 Light on ceramic",s:0,ig:"La luz recorre la cer\u00e1mica como si buscara algo.\n\nEncuentra lo mismo que t\u00fa cuando la sostienes:\n\ncada detalle fue intencional."+HT},
+{d:"2026-05-22",pl:"Branding & Dise\u00f1o",f:"Photo Post",a:5,as:"hero",ph:"Optimization",tp:"Quote card \u2014 \"No cu\u00e1ntas. Cu\u00e1les.\"",s:1,st:"quote",ig:"No se trata de cu\u00e1ntas botellas.\nSe trata de cu\u00e1les.\n\nMoramor."+HT},
+{d:"2026-05-24",pl:"Lifestyle Premium",f:"Threads",a:6,as:null,ph:"Optimization",tp:"6A \u2014 Tasting Notes Monologue",s:0,ig:"El consumidor premium no compra especificaciones.\nCompra la noche que quiere tener.\n\nEl contenido que convierte habla de momentos, no de mol\u00e9culas.\n\n\u00bfTu contenido describe el producto o invita al momento?"},
+{d:"2026-05-27",pl:"Producto Hero",f:"Photo Post",a:2,as:"hero",ph:"Optimization",tp:"2B \u2014 Dramatic light hero",s:0,ig:"Hay botellas que se sirven.\nY hay botellas que se presentan.\n\nMoramor se presenta."+HT},
+{d:"2026-05-29",pl:"Lifestyle Mood Video",f:"Reel",a:1,as:"lifestyleVideo",ph:"Optimization",tp:"1B \u2014 The pour (nocturnal)",s:0,ig:"La noche correcta.\nLa mesa correcta.\nLa botella correcta.\n\nNo es coincidencia. Es intenci\u00f3n."+HT},
+{d:"2026-05-31",pl:"Detalles & Craft",f:"Photo Post",a:3,as:"craft",ph:"Optimization",tp:"3B \u2014 Abstract product shot",s:0,ig:"Lo que se siente diferente, se recuerda diferente.\n\nCer\u00e1mica talavera. Hecha a mano.\nCada botella, una pieza."+HT},
+{d:"2026-06-03",pl:"Producto Cinem\u00e1tico",f:"Reel",a:5,as:"cinematico",ph:"Acceleration",tp:"5B \u2014 Slow motion pour",s:0,ig:"Servir Moramor es un acto deliberado.\n\nEl peso de la cer\u00e1mica. La lentitud del l\u00edquido. El silencio antes del primer sorbo.\n\nAlgunos momentos merecen ceremonia."+HT},
+{d:"2026-06-05",pl:"Cultura & Origen",f:"Photo Post",a:7,as:"cultura",ph:"Acceleration",tp:"7B \u2014 Contemporary Mexican luxury",s:0,ig:"M\u00e9xico no necesita permiso para definir su propio lujo.\n\nMoramor es esa definici\u00f3n.\n\nRa\u00edz profunda. Expresi\u00f3n contempor\u00e1nea.\nCer\u00e1mica talavera. 100% Agave. Jalisco."+HT},
+{d:"2026-06-07",pl:"Lifestyle Premium",f:"Photo Post",a:6,as:"lifestyle",ph:"Acceleration",tp:"6B \u2014 The night it represents",s:0,ig:"La gente no elige tequila.\nElige el tipo de noche que quiere tener.\n\nMoramor es para las noches que se cuentan despu\u00e9s."+HT},
+{d:"2026-06-10",pl:"Craft & Detalle Video",f:"Reel",a:3,as:"craftVideo",ph:"Acceleration",tp:"3C \u2014 Progressive focus on label",s:0,ig:"Del s\u00edmbolo a la marca.\nDel detalle al conjunto.\nDel primer vistazo al momento en que entiendes.\n\nMoramor no se descubre.\nSe reconoce."+HT},
+{d:"2026-06-12",pl:"Branding & Dise\u00f1o",f:"Photo Post",a:1,as:"hero",ph:"Acceleration",tp:"Composici\u00f3n \u2014 4 expresiones editorial",s:1,st:"composici\u00f3n",ig:"Cuatro expresiones.\n\nBlanco \u2014 la verdad.\nReposado \u2014 la paciencia.\nA\u00f1ejo \u2014 la profundidad.\nExtra A\u00f1ejo \u2014 lo extraordinario.\n\nUn solo est\u00e1ndar: sin concesiones."+HT},
+{d:"2026-06-14",pl:"Branding & Dise\u00f1o",f:"Carousel",a:0,as:"branding",ph:"Acceleration",tp:"Carousel editorial \u2014 Conoce la familia",s:1,st:"carousel",ig:"Conoce la familia.\n\n\ud83d\udccc BLANCO \u2014 Puro, cristalino. Agave cocido, hierbas, c\u00edtricos.\n\ud83d\udccc REPOSADO \u2014 Roble americano. Caramelo, frutas, vainilla.\n\ud83d\udccc A\u00d1EJO \u2014 1-3 a\u00f1os. Madera, almendras, clavo, vainilla.\n\ud83d\udccc EXTRA A\u00d1EJO \u2014 3+ a\u00f1os. Chocolate, camote, vainilla.\n\nEn Moramor no solo hacemos tequila. Embotellamos amor."+HT},
+{d:"2026-06-17",pl:"Lifestyle Premium",f:"Photo Post",a:2,as:"lifestyle",ph:"Acceleration",tp:"2A \u2014 Editorial ambiance",s:0,ig:"Una botella que no necesita contexto.\nPero que mejora cualquiera.\n\nMoramor en tu mesa es una declaraci\u00f3n silenciosa de que esta noche importa."+HT},
+{d:"2026-06-19",pl:"Branding Animado",f:"Reel",a:0,as:"brandingAnim",ph:"Acceleration",tp:"Talavera pattern \u2192 fade to bottle",s:0,ig:"Donde la tradici\u00f3n encuentra su forma m\u00e1s elegante.\n\nTalavera \u2192 Moramor.\n\nSiglos de artesan\u00eda condensados en una botella que no necesita explicaci\u00f3n."+HT},
+{d:"2026-06-21",pl:"Detalles & Craft",f:"Photo Post",a:4,as:"craft",ph:"Acceleration",tp:"4C \u2014 Light on glass detail",s:0,ig:"La luz siempre encuentra la cer\u00e1mica primero.\n\nPorque lo que se dise\u00f1a con intenci\u00f3n atrae la atenci\u00f3n sin pedirla."+HT},
+{d:"2026-06-24",pl:"Branding & Dise\u00f1o",f:"Photo Post",a:6,as:"hero",ph:"Acceleration",tp:"Original \u2014 Dise\u00f1o de momento premium",s:1,st:"original",ig:"No dise\u00f1amos una botella bonita.\n\nDise\u00f1amos un momento.\n\nEl peso en las manos. La ceremonia del servicio. El silencio que genera en la mesa."+HT},
+{d:"2026-06-26",pl:"Lifestyle Premium",f:"Threads",a:7,as:null,ph:"Acceleration",tp:"7C \u2014 Price Confidence",s:0,ig:"Si t\u00fa no crees que tu tequila vale lo que cuesta, \u00bfpor qu\u00e9 alguien m\u00e1s lo har\u00eda?\n\nLos descuentos compran transacciones.\nLa confianza compra relaciones."},
+{d:"2026-06-28",pl:"Cultura & Origen",f:"Photo Post",a:5,as:"cultura",ph:"Acceleration",tp:"5C \u2014 The love story",s:0,ig:"\"En un punto de mi vida en que me sent\u00eda perdido, conoc\u00ed a una mujer cuya presencia reaviv\u00f3 mi esp\u00edritu.\"\n\nDesde entonces, cada botella celebra eso:\nel cuidado y la dedicaci\u00f3n de amar de verdad.\n\nCon m\u00e1s y m\u00e1s amor.\n\u2014 Jacob Amselem"+HT},
+{d:"2026-07-01",pl:"Producto Cinem\u00e1tico",f:"Reel",a:4,as:"cinematico",ph:"Scale",tp:"4B \u2014 Slow 360\u00b0 blue bottle",s:0,ig:"Azul profundo. Cer\u00e1mica artesanal. Detalles en blanco.\n\nExtra A\u00f1ejo.\n\nNuestra expresi\u00f3n m\u00e1s intensa.\nPara quienes buscan lo extraordinario."+HT},
+{d:"2026-07-03",pl:"Detalles & Craft",f:"Photo Post",a:3,as:"craft",ph:"Scale",tp:"3A \u2014 Shadow play on label",s:0,ig:"Cada sombra revela un detalle nuevo.\n\nCada detalle confirma lo que ya sab\u00edas:\n\nesto fue hecho con una intenci\u00f3n diferente."+HT},
+{d:"2026-07-05",pl:"Lifestyle Premium",f:"Photo Post",a:2,as:"lifestyle",ph:"Scale",tp:"2A \u2014 Center of table",s:0,ig:"El centro de la mesa.\n\nNo por accidente. Por presencia.\n\nMoramor no compite por atenci\u00f3n.\nLa atrae."+HT},
+{d:"2026-07-08",pl:"Producto Hero",f:"Photo Post",a:1,as:"hero",ph:"Scale",tp:"1C \u2014 Dark dramatic hero",s:0,ig:"Hay botellas que se guardan en el mueble.\n\nY hay botellas que se guardan en la memoria.\n\nMoramor."+HT},
+{d:"2026-07-10",pl:"Branding & Dise\u00f1o",f:"Carousel",a:7,as:"cultura",ph:"Scale",tp:"Carousel editorial \u2014 Lujo mexicano",s:1,st:"carousel",ig:"Lujo mexicano.\n\n\ud83d\udccc No necesita permiso.\n\ud83d\udccc No necesita traducci\u00f3n.\n\ud83d\udccc No necesita compararse con nadie.\n\ud83d\udccc Solo necesita ser aut\u00e9ntico.\n\nMoramor. Cer\u00e1mica talavera. 100% Agave.\nJalisco, M\u00e9xico."+HT},
+{d:"2026-07-12",pl:"Lifestyle Premium",f:"Photo Post",a:6,as:"lifestyle",ph:"Scale",tp:"6B \u2014 The celebration",s:0,ig:"Las mejores noches no se planean.\nSe reconocen.\n\nCuando la conversaci\u00f3n fluye, cuando el tiempo se detiene, cuando nadie quiere irse.\n\nEsa noche merece Moramor."+HT},
+{d:"2026-07-15",pl:"Detalles & Craft",f:"Photo Post",a:5,as:"craft",ph:"Scale",tp:"5C \u2014 Label light play",s:0,ig:"La historia de Moramor en 15 segundos:\n\nNaci\u00f3 de una historia de amor en un bar de tequila en Jalisco. Cer\u00e1mica talavera artesanal. 100% Agave. Se llama Moramor \u2014 m\u00e1s amor.\n\nAlgunas historias no necesitan m\u00e1s tiempo.\nSolo necesitan ser reales."+HT},
+{d:"2026-07-17",pl:"Producto Hero",f:"Photo Post",a:3,as:"hero",ph:"Scale",tp:"3C \u2014 Light mode hero",s:0,ig:"Blanco.\n\nLa expresi\u00f3n m\u00e1s pura.\nSin barricas. Sin aditivos. Sin pretensi\u00f3n.\n\nSolo agave y honestidad."+HT},
+{d:"2026-07-19",pl:"Lifestyle Premium",f:"Threads",a:1,as:null,ph:"Scale",tp:"1A \u2014 Curation over accumulation",s:0,ig:"\u00bfCu\u00e1ntos de tus tequilas podr\u00edas quitar ma\u00f1ana sin que un solo cliente lo note?\n\nCuraci\u00f3n > acumulaci\u00f3n."},
+{d:"2026-07-22",pl:"Branding & Dise\u00f1o",f:"Photo Post",a:0,as:"branding",ph:"Scale",tp:"Quote card \u2014 Brand statement con logo",s:1,st:"quote",ig:"Cuatro expresiones.\nUn solo est\u00e1ndar.\n\nPara las noches que merecen m\u00e1s.\n\nMoramor.\nTequila 100% Agave.\nCer\u00e1mica talavera artesanal.\nJalisco, M\u00e9xico."+HT},
+{d:"2026-07-24",pl:"Lifestyle Premium",f:"Photo Post",a:4,as:"lifestyle",ph:"Scale",tp:"4A \u2014 Editorial magazine shot",s:0,ig:"Dise\u00f1ada para la mesa.\nOptimizada para la memoria.\n\nMoramor."+HT},
+{d:"2026-07-26",pl:"Detalles & Craft",f:"Photo Post",a:6,as:"craft",ph:"Scale",tp:"6C \u2014 Abstract product",s:0,ig:"El peso de la cer\u00e1mica.\nLa lentitud del servicio.\nLa pausa antes del primer sorbo.\n\nNo es una bebida.\nEs una ceremonia."+HT},
+{d:"2026-07-29",pl:"Branding & Dise\u00f1o",f:"Carousel",a:0,as:"hero",ph:"Scale",tp:"Carousel editorial \u2014 Campaign recap",s:1,st:"carousel",ig:"Cuatro expresiones. Una historia.\n\n\ud83d\udccc BLANCO \u2014 Para los que prefieren la verdad sin filtros.\n\ud83d\udccc REPOSADO \u2014 Para los que saben que el tiempo mejora todo.\n\ud83d\udccc A\u00d1EJO \u2014 Para los que aprecian la complejidad.\n\ud83d\udccc EXTRA A\u00d1EJO \u2014 Para los que buscan lo extraordinario.\n\nMoramor. Hecho en Jalisco con m\u00e1s amor.\n\nEsto apenas comienza."+HT},
+{d:"2026-07-31",pl:"Branding & Dise\u00f1o",f:"Photo Post",a:0,as:"branding",ph:"Scale",tp:"Original \u2014 Campaign close editorial",s:1,st:"original",ig:"\"En Moramor no solo hacemos tequila.\nEmbotellamos amor.\"\n\n\u2014 Jacob Amselem, Fundador & CEO\n\nCon m\u00e1s y m\u00e1s amor.\n\nMoramor."+HT}
+];
+
+var cM="2026-04",cF="All",vw="cal";
+function render(){
+var mi=MS.find(function(m){return m.k===cM});
+document.getElementById("pL").textContent=vw==="glos"?"Glosario de Categor\u00edas":mi.p+" \u00b7 "+mi.l+" 2026";
+var mb="";MS.forEach(function(m){mb+='<button class="mb sans '+(vw==="cal"&&m.k===cM?"a":"")+'" onclick="sM(\''+m.k+'\')">'+m.l+'</button>'});
+mb+='<button class="mb gl sans '+(vw==="glos"?"a":"")+'" onclick="sV(\'glos\')">\ud83d\udcd6 Glosario</button>';
+document.getElementById("mB").innerHTML=mb;
+if(vw==="cal"){
+var mp=P.filter(function(p){return p.d.startsWith(cM)});var fc={};mp.forEach(function(p){fc[p.f]=(fc[p.f]||0)+1});
+var sc=mp.filter(function(p){return p.s}).length;
+var fb='<button class="fb sans '+(cF==="All"?"a":"")+'" onclick="sF(\'All\')">All '+mp.length+'</button>';
+Object.keys(FT).forEach(function(f){if(fc[f])fb+='<button class="fb sans '+(cF===f?"a":"")+'" onclick="sF(\''+f+'\')">'+FT[f].i+fc[f]+'</button>'});
+fb+='<button class="fb sans '+(cF==="Sebas"?"a":"")+'" onclick="sF(\'Sebas\')" style="border-color:#C8A24E44;'+(cF==="Sebas"?"background:#C8A24E22;color:#C8A24E":"")+'">\u2726 Sebas '+sc+'</button>';
+document.getElementById("fB").innerHTML=fb;
+}else{document.getElementById("fB").innerHTML=""}
+var area=document.getElementById("mainArea");
+if(vw==="glos"){area.className="glos-wrap";area.innerHTML=glosHTML();return}
+area.className="cal-wrap";
+var yr=parseInt(cM.split("-")[0]),mo=parseInt(cM.split("-")[1]),dim=new Date(yr,mo,0).getDate(),fdw=new Date(yr,mo-1,1).getDay();
+var mp2=P.filter(function(p){return p.d.startsWith(cM)});
+var fl=mp2;if(cF==="Sebas")fl=mp2.filter(function(p){return p.s});else if(cF!=="All")fl=mp2.filter(function(p){return p.f===cF});
+var h='<div class="day-headers sans">';["Dom","Lun","Mar","Mi\u00e9","Jue","Vie","S\u00e1b"].forEach(function(d){h+='<div class="dh">'+d+'</div>'});h+='</div><div class="cal-grid">';
+for(var i=0;i<fdw;i++)h+='<div class="cell empty"></div>';
+for(var d=1;d<=dim;d++){var ds=cM+"-"+(d<10?"0":"")+d;var dp=fl.filter(function(p){return p.d===ds});var hp=dp.length>0?"hp":"";
+var pl="";dp.forEach(function(p){var pc=PC[p.pl]||{bg:"#1a1a2d",tx:"#888"};var fi=FT[p.f]||{i:"\u2022",c:"#888"};
+var badge=p.s?'<span class="sb">SEBAS</span>':"";var bc=p.s?"#C8A24E":fi.c;
+pl+='<div class="pill" style="background:'+pc.bg+';color:'+pc.tx+';border-left:3px solid '+bc+'" onclick="event.stopPropagation();oP('+P.indexOf(p)+')">'+fi.i+" "+p.pl+badge+'</div>'});
+var ck=dp.length===1?'onclick="oP('+P.indexOf(dp[0])+')"':"";
+h+='<div class="cell '+hp+'" '+ck+'><div class="cell-day sans">'+d+'</div><div class="pills">'+pl+'</div></div>'}
+h+='</div>';area.innerHTML=h}
+
+function glosHTML(){
+return '<div class="gs sans"><div class="gs-t" style="color:#C8A24E">\ud83d\udcf7 FOTOGRAF\u00cdA \u2014 48 PIEZAS DE P\u00cdLDORA</div><p style="font-size:12px;color:var(--txt2);margin-bottom:16px;line-height:1.6">Estos son los 5 tipos de foto que P\u00edldora (Ale, Luis y Garbuno) producen para Moramor. Cada categor\u00eda tiene un prop\u00f3sito espec\u00edfico dentro del feed.</p><div class="gg">'
++'<div class="gc" style="border-left-color:#9B8AFF"><div class="gc-h"><div class="gc-i">\ud83d\udc51</div><div class="gc-t" style="color:#9B8AFF">Producto Hero</div><div class="gc-c">12 fotos</div></div><div class="gc-d">La botella como protagonista absoluta. Fondos limpios (azul profundo o negro), luz dram\u00e1tica, composici\u00f3n minimal. Es el shot principal de producto \u2014 el que usas para presentar cada expresi\u00f3n de frente.</div><div class="gc-m" style="color:#9B8AFF">Mood: Minimalista, lujo editorial</div><div class="gc-s"><span>Incluye:</span> Botella centrada fondo azul \u00b7 Fondo negro con luz dram\u00e1tica \u00b7 Sombra marcada lateral \u00b7 Reflejo en superficie brillante \u00b7 Pedestal minimalista \u00b7 Patr\u00f3n talavera sutil \u00b7 Close shot vertical \u00b7 Composici\u00f3n horizontal web \u00b7 Dorado resaltado \u00b7 Dark mode \u00b7 Light mode \u00b7 Toma ic\u00f3nica para portada</div></div>'
++'<div class="gc" style="border-left-color:#7ADB6B"><div class="gc-h"><div class="gc-i">\ud83d\udd0d</div><div class="gc-t" style="color:#7ADB6B">Detalles & Craft</div><div class="gc-c">10 fotos</div></div><div class="gc-d">Close-ups de la etiqueta, la cer\u00e1mica, el vidrio y el dorado. El objetivo es que se sienta caro. Cada foto transmite lujo y precisi\u00f3n artesanal.</div><div class="gc-m" style="color:#7ADB6B">Objetivo: Que se sienta caro</div><div class="gc-s"><span>Incluye:</span> Close-up etiqueta \u00b7 Close-up relieve \u00b7 Detalle vidrio \u00b7 Detalle dorado \u00b7 Textura + botella desenfocada \u00b7 Macro del s\u00edmbolo \u00b7 Juego de luces en etiqueta \u00b7 Detalle con sombra org\u00e1nica \u00b7 Botella parcialmente encuadrada \u00b7 Toma abstracta</div></div>'
++'<div class="gc" style="border-left-color:#DB6BAA"><div class="gc-h"><div class="gc-i">\ud83c\udf19</div><div class="gc-t" style="color:#DB6BAA">Lifestyle Premium</div><div class="gc-c">12 fotos</div></div><div class="gc-d">La botella en contexto: mesas elegantes, cenas sofisticadas, ambiente after hours. Estas fotos crean aspiraci\u00f3n \u2014 muestran el mundo donde vive Moramor.</div><div class="gc-m" style="color:#DB6BAA">Mood: After hours, elegante, no fiesta excesiva</div><div class="gc-s"><span>Incluye:</span> Botella en mesa con copa \u00b7 Mano sirviendo \u00b7 Plano abierto con ambiente \u00b7 Detalle botella + luz c\u00e1lida \u00b7 Composici\u00f3n nocturna \u00b7 Shot elegante con 2 personas (sin protagonizar rostros) \u00b7 Producto en centro de mesa \u00b7 Close-up + desenfoque \u00b7 Shot minimalista \u00b7 Celebraci\u00f3n sobria \u00b7 Luz natural premium \u00b7 Plano editorial tipo revista</div></div>'
++'<div class="gc" style="border-left-color:#DBA66B"><div class="gc-h"><div class="gc-i">\ud83c\udfe2</div><div class="gc-t" style="color:#DBA66B">Cultura & Origen</div><div class="gc-c">8 fotos</div></div><div class="gc-d">Texturas artesanales, inspiraci\u00f3n en talavera, composici\u00f3n refinada. Conectan la marca con su ra\u00edz mexicana sin caer en lo folkl\u00f3rico literal.</div><div class="gc-m" style="color:#DBA66B">Objetivo: Sin caer en lo folkl\u00f3rico. Debe sentirse refinado.</div><div class="gc-s"><span>Incluye:</span> Producto con textura artesanal \u00b7 Fondo inspirado en talavera \u00b7 Composici\u00f3n con sombra de patr\u00f3n \u00b7 Detalle cultural abstracto \u00b7 Botella + textura piedra \u00b7 Luz c\u00e1lida evocando origen \u00b7 Composici\u00f3n simb\u00f3lica \u00b7 Fotograf\u00eda conceptual art\u00edstica</div></div>'
++'<div class="gc" style="border-left-color:#6BA6DB"><div class="gc-h"><div class="gc-i">\u270f\ufe0f</div><div class="gc-t" style="color:#6BA6DB">Branding & Dise\u00f1o</div><div class="gc-c">6 fotos</div></div><div class="gc-d">Composiciones con espacio negativo para integraci\u00f3n gr\u00e1fica. Son las fotos que Sebasti\u00e1n usa como base para agregar texto, frases, o montar carruseles y anuncios.</div><div class="gc-m" style="color:#6BA6DB">Objetivo: Frases, anuncios, carruseles</div><div class="gc-s"><span>Incluye:</span> Fondo limpio + botella lateral \u00b7 Fondo blanco editorial \u00b7 Fondo azul s\u00f3lido con espacio negativo \u00b7 Producto en esquina para texto \u00b7 Logo protag\u00f3nico elegante \u00b7 Composici\u00f3n minimalista gr\u00e1fica</div></div>'
++'</div></div>'
++'<div class="gs sans"><div class="gs-t" style="color:#FF6BAA">\ud83c\udfac VIDEO \u2014 12 PIEZAS DE P\u00cdLDORA</div><p style="font-size:12px;color:var(--txt2);margin-bottom:16px;line-height:1.6">Videos verticales 1080\u00d71920 de 10 a 15 segundos. Ritmo lento, elegante, cinematogr\u00e1fico. Reglas: no saturar de props, mucho aire, producto siempre protagonista, coherencia con azul, blanco y dorado.</p><div class="gg">'
++'<div class="gc" style="border-left-color:#FF6BAA"><div class="gc-h"><div class="gc-i">\ud83c\udfa5</div><div class="gc-t" style="color:#FF6BAA">Producto Cinem\u00e1tico</div><div class="gc-c">4 videos</div></div><div class="gc-d">La botella como estrella en movimiento. Giros lentos, slow motion, luz dram\u00e1tica.</div><div class="gc-s"><span>Incluye:</span> Giro lento 360\u00b0 \u00b7 Close-up etiqueta con rack focus \u00b7 Botella en luz dram\u00e1tica con humo sutil \u00b7 Slow motion sirviendo</div></div>'
++'<div class="gc" style="border-left-color:#6BDB7A"><div class="gc-h"><div class="gc-i">\ud83d\udd2c</div><div class="gc-t" style="color:#6BDB7A">Craft & Detalle Video</div><div class="gc-c">3 videos</div></div><div class="gc-d">Macro shots en movimiento. Juegos de luces, enfoque progresivo desde un detalle hasta la marca completa.</div><div class="gc-s"><span>Incluye:</span> Macro etiqueta + textura \u00b7 Juego de luces recorriendo botella \u00b7 Enfoque progresivo desde s\u00edmbolo hasta marca</div></div>'
++'<div class="gc" style="border-left-color:#DB8A6B"><div class="gc-h"><div class="gc-i">\ud83c\udf7d</div><div class="gc-t" style="color:#DB8A6B">Lifestyle Mood Video</div><div class="gc-c">3 videos</div></div><div class="gc-d">La botella en contexto de cena elegante, ambiente nocturno. C\u00e1mara lenta sobre mesa sofisticada.</div><div class="gc-s"><span>Incluye:</span> Cena elegante + botella al centro \u00b7 Mano sirviendo + ambiente nocturno \u00b7 C\u00e1mara lento sobre mesa sofisticada</div></div>'
++'<div class="gc" style="border-left-color:#8A8AFF"><div class="gc-h"><div class="gc-i">\u2728</div><div class="gc-t" style="color:#8A8AFF">Branding Animado</div><div class="gc-c">2 videos</div></div><div class="gc-d">Animaciones del s\u00edmbolo de Moramor y patrones talavera con transiciones elegantes hacia la botella.</div><div class="gc-s"><span>Incluye:</span> S\u00edmbolo animado minimal \u00b7 Patr\u00f3n talavera animado + fade a botella</div></div>'
++'</div></div>'
++'<div class="gs sans"><div class="gs-t" style="color:#C8A24E">\u2726 SEBAS DISE\u00d1A \u2014 ~23% DEL CONTENIDO</div><p style="font-size:12px;color:var(--txt2);margin-bottom:16px;line-height:1.6">Aproximadamente 1 de cada 4 posts es intervenido por Sebasti\u00e1n. Toma las raw images de P\u00edldora y les agrega su toque. Estos posts est\u00e1n marcados con <span style="background:#C8A24E;color:#06091F;font-size:9px;font-weight:700;padding:1px 6px;border-radius:2px">SEBAS</span> en el calendario.</p><div class="gg">'
++'<div class="gc" style="border-left-color:#C8A24E"><div class="gc-h"><div class="gc-i">\ud83d\udcac</div><div class="gc-t" style="color:#C8A24E">Quote Card</div></div><div class="gc-d">Sebas toma una raw image y le monta una frase con la tipograf\u00eda y colores Moramor. Fondo editorial, composici\u00f3n limpia, la frase es protagonista.</div></div>'
++'<div class="gc" style="border-left-color:#C8A24E"><div class="gc-h"><div class="gc-i">\ud83c\udfa8</div><div class="gc-t" style="color:#C8A24E">Composici\u00f3n Gr\u00e1fica</div></div><div class="gc-d">Combina raw images con elementos de dise\u00f1o: patrones talavera, texturas abstractas, overlays geom\u00e9tricos. Su toque creativo con libertad para experimentar.</div></div>'
++'<div class="gc" style="border-left-color:#C8A24E"><div class="gc-h"><div class="gc-i">\ud83d\udcd1</div><div class="gc-t" style="color:#C8A24E">Carousel Editorial</div></div><div class="gc-d">Dise\u00f1a cada slide del carrusel con layout de marca: tipograf\u00eda, colores azul/blanco/dorado, composici\u00f3n premium. Cada slide funciona individual y en secuencia.</div></div>'
++'<div class="gc" style="border-left-color:#C8A24E"><div class="gc-h"><div class="gc-i">\ud83d\udca1</div><div class="gc-t" style="color:#C8A24E">Idea Original</div></div><div class="gc-d">Libertad creativa total. La \u00fanica regla: debe sentirse moderna, premium, y alineada con Moramor. Sin l\u00edmites predefinidos.</div></div>'
++'</div></div>'
++'<div style="text-align:center;padding:24px 0;border-top:1px solid var(--bdr);margin-top:16px"><div style="font-size:10px;color:var(--txt2);letter-spacing:2px;margin-bottom:6px">TOTAL DE ASSETS</div><div style="font-size:28px;font-weight:300;color:var(--wh)">48 <span style="font-size:12px;color:var(--txt2)">fotos</span> + 12 <span style="font-size:12px;color:var(--txt2)">videos</span> = 60 <span style="font-size:12px;color:var(--txt2)">piezas</span></div><div style="font-size:12px;color:var(--gold);margin-top:6px">Producci\u00f3n: Ale (planeaci\u00f3n) \u00b7 Luis (grabaci\u00f3n y edici\u00f3n) \u00b7 Garbuno (postproducci\u00f3n)</div><div style="font-size:11px;color:var(--txt2);margin-top:4px">Costo total: $22,000 MXN \u00b7 Rendimiento: 4 meses de contenido</div></div>';
+}
+
+function sV(v){vw=v;render()}
+function sM(m){cM=m;cF="All";vw="cal";render()}
+function sF(f){cF=f;render()}
+
+function oP(i){var p=P[i];var pc=PC[p.pl]||{bg:"#1a1a2d",tx:"#888",bd:"#333"};var fi=FT[p.f]||{i:"\u2022",c:"#888"};
+var dt=new Date(p.d+"T12:00:00").toLocaleDateString("es-MX",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+var at="";if(p.a>0)at='<span class="tag" style="background:#0d2228;color:#6BC8DB;border:1px solid #28506a">Angle '+p.a+'</span>';
+var sh="";if(p.s)sh='<div class="sbox"><div class="si">\u2726</div><div class="sc"><div class="stl sans">SEBAS DISE\u00d1A</div><div class="sds sans">'+(SL[p.st]||"")+'</div></div></div>';
+document.getElementById("md").innerHTML='<div class="mt"><button class="mc" onclick="cL()">\u00d7</button><div class="mp sans">'+(p.ph||"").toUpperCase()+'</div><div class="md2 sans">'+dt+'</div><div class="mtl">'+p.tp+'</div><div class="tags"><span class="tag" style="background:'+pc.bg+';color:'+pc.tx+';border:1px solid '+pc.bd+'">'+p.pl+'</span><span class="tag" style="background:#1a1a2d;color:'+fi.c+';border:1px solid '+fi.c+'33">'+fi.i+" "+p.f+'</span>'+at+(p.s?'<span class="tag" style="background:#C8A24E22;color:#C8A24E;border:1px solid #C8A24E44">\u2726 Sebas</span>':"")+'</div></div><div class="mbdy">'+sh+'<div class="cbox"><div class="ch"><div class="cl sans">CAPTION PARA INSTAGRAM</div><button class="cpb sans" id="cpB" onclick="cC('+i+')">COPIAR</button></div><div class="ct">'+eH(p.ig)+'</div></div><div class="ir">'+(p.as?'<div class="ic"><div class="il sans">ASSET P\u00cdLDORA'+(p.s?" (RAW)":"")+'</div><div class="iv sans">'+AN[p.as]+'</div></div>':'')+'<div class="ic"><div class="il sans">DISTRIBUCI\u00d3N</div><div class="idt sans">'+(DIST[p.f]||"")+'</div></div></div></div>';
+document.getElementById("ov").classList.add("show")}
+
+function cL(){document.getElementById("ov").classList.remove("show")}
+document.getElementById("ov").addEventListener("click",function(e){if(e.target===this)cL()});
+function cC(i){navigator.clipboard.writeText(P[i].ig).then(function(){var b=document.getElementById("cpB");b.textContent="\u2713 COPIADO";b.classList.add("ok");setTimeout(function(){b.textContent="COPIAR";b.classList.remove("ok")},2000)})}
+function eH(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>")}
+render();
+</script>
+</body>
+</html>
